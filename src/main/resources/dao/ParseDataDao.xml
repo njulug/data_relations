@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ParseDataDao">
+
+    <insert id="saveBatchAzkaban">
+        INSERT INTO ${param1}
+        (file_name,parse_type,sub_file_name,job_name,s_name,e_name,o_name,g_name,k_name,c_name,command,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="azkabanList" separator=",">
+            (#{azkabanList.fileName},#{azkabanList.parseType},#{azkabanList.subFileName},#{azkabanList.jobName},
+            #{azkabanList.stgShellSName},#{azkabanList.stgShellEName},#{azkabanList.stgShellOName},
+            #{azkabanList.odsShellGName},#{azkabanList.odsShellKName},#{azkabanList.hiveFileCName},
+            #{azkabanList.command},
+            #{azkabanList.createTime}, #{azkabanList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchSrcToRaw">
+        INSERT INTO ${param1}
+        (file_addr,data_source_node,data_source_connection,data_source_table_name,data_center_node,data_center_connection,data_center_table_name,increment_fields,json_result,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="srcToRawList" separator=",">
+            (#{srcToRawList.fileAddr}, #{srcToRawList.dataSourceNode}, #{srcToRawList.dataSourceConnection},
+            #{srcToRawList.dataSourceTableName},#{srcToRawList.dataCenterNode},#{srcToRawList.dataCenterConnection},#{srcToRawList.dataCenterTableName},#{srcToRawList.incrementFields},#{srcToRawList.jsonResult},
+            #{srcToRawList.createTime}, #{srcToRawList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchRawToOds">
+        INSERT INTO ${param1}
+        (file_addr,data_center_node,data_center_connection,data_center_table_name,data_warehourse_node,data_warehourse_connection,data_warehourse_table_name,data_warehourse_save_table_name,http_url_project,http_url_file_name,http_url,json_result,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="rawtoOdsList" separator=",">
+            (#{rawtoOdsList.fileAddr}, #{rawtoOdsList.dataCenterNode},
+            #{rawtoOdsList.dataCenterConnection},#{rawtoOdsList.dataCenterTableName},
+            #{rawtoOdsList.dataWareHouseNode},#{rawtoOdsList.dataWareHouseConnection},#{rawtoOdsList.dataWareHouseTableName},#{rawtoOdsList.dataWareHouseSaveTableName},
+            #{rawtoOdsList.httpUrlProject},#{rawtoOdsList.httpUrlFileName},#{rawtoOdsList.httpUrl},#{rawtoOdsList.jsonResult},
+            #{rawtoOdsList.createTime}, #{rawtoOdsList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchHiveFileDetail">
+        INSERT INTO ${param1}
+        (file_addr,file_name,ods_table_name,all_columns_count,all_columns,partition_key,where_condition,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="hiveFileList" separator=",">
+            (#{hiveFileList.fileAddr},#{hiveFileList.fileName}, #{hiveFileList.odsTableName},
+            #{hiveFileList.allColumnsCount},#{hiveFileList.allColumns},
+            #{hiveFileList.partitionKey},#{hiveFileList.whereCondition},
+            #{hiveFileList.createTime}, #{hiveFileList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchShellDetail">
+        INSERT INTO ${param1}
+        (file_addr,file_name,source_table_name,stg_table_name,filter_key,xtjc,jdbc_name,all_columns_count,parse_all_columns,all_columns,ods_table_name,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="shellList" separator=",">
+            (#{shellList.fileAddr},#{shellList.fileName}, #{shellList.sourceTableName}, #{shellList.stgTableName}, #{shellList.filterKey},
+            #{shellList.xtjc},#{shellList.jdbcName},#{shellList.allColumnsCount},
+             #{shellList.parseAllColumns},#{shellList.allColumns},#{shellList.odsTableName},
+            #{shellList.createTime}, #{shellList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchTableDetail">
+        INSERT INTO ${param1}
+        (file_addr,file_name,table_name,table_comment,columns_count,column_name,column_type,column_comment,column_order,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="dataList" separator=",">
+            (#{dataList.fileAddr},#{dataList.fileName},#{dataList.tableName}, #{dataList.tableComment},#{dataList.columnsCount},
+            #{dataList.columnName}, #{dataList.columnType},
+            #{dataList.columnComment},#{dataList.columnOrder},
+            #{dataList.createTime}, #{dataList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchSrcToBigData">
+        INSERT INTO ${param1}
+        (stg_file_name,stg_file_path,ods_file_path,source_table_name,filter_key,jdbc_name,stg_table_name,ods_table_name,ods_table_comment,xtjc,job_name,s_name,e_name,o_name,g_name,k_name,c_name,command,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="srcToBigDataList" separator=",">
+            (#{srcToBigDataList.stgFileName},#{srcToBigDataList.stgFilePath},#{srcToBigDataList.odsFilePath},#{srcToBigDataList.sourceTableName},#{srcToBigDataList.filterKey},#{srcToBigDataList.jdbcName},
+            #{srcToBigDataList.stgTableName}, #{srcToBigDataList.odsTableName}, #{srcToBigDataList.odsTableComment},
+            #{srcToBigDataList.xtjc},#{srcToBigDataList.jobName},#{srcToBigDataList.stgShellSName},#{srcToBigDataList.stgShellEName},#{srcToBigDataList.stgShellOName},#{srcToBigDataList.odsShellGName},#{srcToBigDataList.odsShellKName},#{srcToBigDataList.hiveFileCName},#{srcToBigDataList.command},
+            #{srcToBigDataList.createTime}, #{srcToBigDataList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchProcedure">
+        INSERT INTO ${param1}
+        (file_addr,file_name,user_name,procedure_name,table_type,table_name,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="procedureList" separator=",">
+            (#{procedureList.fileAddr},#{procedureList.fileName},#{procedureList.userName},#{procedureList.procedureName},
+             #{procedureList.tableType},#{procedureList.tableName},
+            #{procedureList.createTime}, #{procedureList.modifyTime})
+        </foreach>
+    </insert>
+
+</mapper>

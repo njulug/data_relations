@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%p] - [%c{3}:%L] %m%n"/>
+        </Console>
+
+        <File name="LogFile" fileName="logs/LogFile.txt" append="false">
+            <PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%p] - [%c{3}:%L] %m%n"/>
+        </File>
+
+        <RollingFile name="RollingFile"
+                     filePattern="logs/%-d{yyyy-MM-dd}/%-d{yyyy-MM-dd_HH-mm-ss}.txt.gz">
+            <PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%p] - [%c{3}:%L] %m%n"/>
+            <SizeBasedTriggeringPolicy size="50MB"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console" level="INFO"/>
+            <AppenderRef ref="LogFile" level="ERROR"/>
+            <AppenderRef ref="RollingFile" level="INFO"/>
+        </Root>
+    </Loggers>
+</Configuration>

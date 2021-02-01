@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!-- 配置 数据源 org.springframework.jdbc.datasource.DriverManagerDataSource-->
+    <bean id="mysqlSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!-- 初始化连接数-->
+        <property name="initialSize" value="4"/>
+        <!--最大连接数-->
+        <property name="maxActive" value="30"/>
+        <!--最小连接数-->
+        <property name="minIdle" value="1"/>
+    </bean>
+
+    <bean id="sybaseSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${iqjdbc.driver}"/>
+        <property name="url" value="${iqjdbc.url}"/>
+        <property name="username" value="${iqjdbc.username}"/>
+        <property name="password" value="${iqjdbc.password}"/>
+        <!-- 初始化连接数-->
+        <property name="initialSize" value="4"/>
+        <!--最大连接数-->
+        <property name="maxActive" value="30"/>
+        <!--最小连接数-->
+        <property name="minIdle" value="1"/>
+        <property name="testWhileIdle" value="false"/>
+    </bean>
+
+
+    <!--统一的dataSource-->
+    <bean id="dynamicDataSource" class="dao.DynamicDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <!--通过不同的key决定用哪个dataSource-->
+                <entry value-ref="sybaseSource" key="sybaseSource"/>
+                <entry value-ref="mysqlSource" key="mysqlSource"/>
+            </map>
+        </property>
+        <!--设置默认的dataSource-->
+        <property name="defaultTargetDataSource" ref="mysqlSource">
+        </property>
+    </bean>
+
+
+    <!-- 配置SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 设置MyBatis核心配置文件,如果按照mybatis的单独的配置就这么加 -->
+        <!--        <property name="configLocation" value="classpath:mybatis/SqlMapConfig.xml"/>-->
+        <!--配置 dao层 扫描包,配置spring + mybatis 这样写就可以了-->
+        <property name="mapperLocations" value="classpath:dao/*.xml"/>
+        <!-- 设置数据源 -->
+        <!--        <property name="dataSource" ref="mysqlSource"/>-->
+        <property name="dataSource" ref="dynamicDataSource"/>
+    </bean>
+
+    <!-- 配置dao扫描 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 设置dao扫描包 -->
+        <property name="basePackage" value="dao"/>
+        <!--注入sqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!--     配置dao扫描-->
+    <context:component-scan base-package="dao"/>
+</beans>
