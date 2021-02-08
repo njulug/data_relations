@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="dao.ParseDataDao">
+<mapper namespace="dao.MySQLDao">
 
     <insert id="saveBatchAzkaban">
         INSERT INTO ${param1}
@@ -58,9 +58,10 @@
         (file_addr,file_name,source_table_name,stg_table_name,filter_key,xtjc,jdbc_name,all_columns_count,parse_all_columns,all_columns,ods_table_name,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="shellList" separator=",">
-            (#{shellList.fileAddr},#{shellList.fileName}, #{shellList.sourceTableName}, #{shellList.stgTableName}, #{shellList.filterKey},
+            (#{shellList.fileAddr},#{shellList.fileName}, #{shellList.sourceTableName}, #{shellList.stgTableName},
+            #{shellList.filterKey},
             #{shellList.xtjc},#{shellList.jdbcName},#{shellList.allColumnsCount},
-             #{shellList.parseAllColumns},#{shellList.allColumns},#{shellList.odsTableName},
+            #{shellList.parseAllColumns},#{shellList.allColumns},#{shellList.odsTableName},
             #{shellList.createTime}, #{shellList.modifyTime})
         </foreach>
     </insert>
@@ -70,7 +71,8 @@
         (file_addr,file_name,table_name,table_comment,columns_count,column_name,column_type,column_comment,column_order,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="dataList" separator=",">
-            (#{dataList.fileAddr},#{dataList.fileName},#{dataList.tableName}, #{dataList.tableComment},#{dataList.columnsCount},
+            (#{dataList.fileAddr},#{dataList.fileName},#{dataList.tableName},
+            #{dataList.tableComment},#{dataList.columnsCount},
             #{dataList.columnName}, #{dataList.columnType},
             #{dataList.columnComment},#{dataList.columnOrder},
             #{dataList.createTime}, #{dataList.modifyTime})
@@ -95,8 +97,19 @@
         VALUES
         <foreach collection="param2" item="procedureList" separator=",">
             (#{procedureList.fileAddr},#{procedureList.fileName},#{procedureList.userName},#{procedureList.procedureName},
-             #{procedureList.tableType},#{procedureList.tableName},
+            #{procedureList.tableType},#{procedureList.tableName},
             #{procedureList.createTime}, #{procedureList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchView">
+        INSERT INTO ${param1}
+        (file_addr,file_name,user_name,view_name,table_type,table_name,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="viewList" separator=",">
+            (#{viewList.fileAddr},#{viewList.fileName},#{viewList.userName},#{viewList.viewName},
+            #{viewList.tableType},#{viewList.tableName},
+            #{viewList.createTime}, #{viewList.modifyTime})
         </foreach>
     </insert>
 

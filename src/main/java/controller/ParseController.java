@@ -1,11 +1,9 @@
 package controller;
 
 import entity.azkaban.AzkabanEntity;
-import entity.raw_to_ods.RawToOdsEntity;
 import entity.src_to_bigdata.HiveFileEntity;
 import entity.src_to_bigdata.ShellEntity;
 import entity.src_to_bigdata.TableEntity;
-import entity.src_to_raw.SrcToRawEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,7 +28,8 @@ public class ParseController {
     private final AnalysisService analysisService;
     private final SrcToRawParseService srcToRawParseService;
     private final RawToOdsParseService rawToOdsParseService;
-    private final ParseProcedureService parseProcedureService;
+    private final SybaseService sybaseService;
+    private final OracleService oracleService;
     private final SrcToBigDataParseService srcToBigDataParseService;
     private final String projectPath = System.getProperty("user.dir");
 
@@ -40,12 +39,14 @@ public class ParseController {
             , RawToOdsParseService rawToOdsParseService
             , AzkabanService azkabanService
             , AnalysisService analysisService
-            , ParseProcedureService parseProcedureService) {
+            , SybaseService sybaseService
+            , OracleService oracleService) {
         this.azkabanService = azkabanService;
         this.analysisService = analysisService;
         this.srcToRawParseService = srcToRawParseService;
         this.rawToOdsParseService = rawToOdsParseService;
-        this.parseProcedureService = parseProcedureService;
+        this.sybaseService = sybaseService;
+        this.oracleService = oracleService;
         this.srcToBigDataParseService = srcToBigDataParseService;
     }
 
@@ -55,20 +56,20 @@ public class ParseController {
     }
 
     @ResponseBody
-    @PostMapping("/srcToRawParse")
-    public List<SrcToRawEntity> srcToRawParse() {
-        return srcToRawParseService.parse();
+    @PostMapping("/parseSrcToRaw")
+    public void parseSrcToRaw() {
+        srcToRawParseService.parse();
     }
 
     @ResponseBody
-    @PostMapping("/rawToOdsParse")
-    public List<RawToOdsEntity> rawToOdsParse() {
-        return rawToOdsParseService.parse();
+    @PostMapping("/parseRawToOds")
+    public void parseRawToOds() {
+        rawToOdsParseService.parse();
     }
 
     @ResponseBody
-    @PostMapping("/srcToBigDataParse")
-    public void srcToBigDataParse() {
+    @PostMapping("/parseSrcToBigData")
+    public void parseSrcToBigData() {
 //        hive_file解析
         List<HiveFileEntity> hiveFileList = srcToBigDataParseService.hiveFileParse();
 //        stg_shell 解析
@@ -82,7 +83,7 @@ public class ParseController {
 //        stg_table 解析
         List<TableEntity> stgTableList = srcToBigDataParseService.stgTableParse();
 //        整合: stg_shell,ods_shell,ods_table(表注释),azkaban,已在数据库操作,这张表可以忽略
-        analysisService.mergeSrcToBigData(odsShellList, stgShellList, odsTableList, azkabanList);
+//        analysisService.mergeSrcToBigData(odsShellList, stgShellList, odsTableList, azkabanList);
     }
 
     @ResponseBody
@@ -91,6 +92,7 @@ public class ParseController {
         log.info("开始分析");
         List<String> procedureNameList = new ArrayList<>();
 //        更新元数据,不用每次都跑
+        procedureNameList.add("p_compare_src_to_raw");
         procedureNameList.add("p_update_meta_data");
         procedureNameList.add("p_compare_azkaban_ods_stg_hive_file");
         procedureNameList.add("p_compare_ods_stg_sql");
@@ -168,9 +170,30 @@ public class ParseController {
     @PostMapping("/parseSybaseProcedure")
     public void parseSybaseProcedure() {
         List<String> userNameList = new ArrayList<>();
-//        userNameList.add("dm");
+        userNameList.add("dm");
         userNameList.add("dba");
-        parseProcedureService.parseProcedure(userNameList);
+        sybaseService.parseProcedure(userNameList);
+    }
+
+    @ResponseBody
+    @PostMapping("/parseSybaseView")
+    public void parseSybaseView() {
+        List<String> userNameList = new ArrayList<>();
+        userNameList.add("dm");
+        userNameList.add("dba");
+        sybaseService.parseView(userNameList);
+    }
+
+    @ResponseBody
+    @PostMapping("/parseOracleView")
+    public void parseOracleView() {
+        oracleService.parseView();
+    }
+
+    @ResponseBody
+    @PostMapping("/parseOracleProcedure")
+    public void parseOracleProcedure() {
+        oracleService.parseProcedure();
     }
 
     @ResponseBody

@@ -2,7 +2,7 @@ package service;
 
 import com.alibaba.excel.EasyExcel;
 import config.DataBaseConstant;
-import dao.ParseDataDao;
+import dao.MySQLDao;
 import entity.src_to_bigdata.HiveFileEntity;
 import entity.src_to_bigdata.ShellEntity;
 import entity.src_to_bigdata.TableEntity;
@@ -30,13 +30,13 @@ import java.util.Map;
 @Slf4j
 public class SrcToBigDataParseService {
     private final String projectPath = System.getProperty("user.dir");
-    private final ParseDataDao parseDataDao;
+    private final MySQLDao mySQLDao;
     private final FileTools fileTools;
     private final FileParseTools fileParseTools;
 
     @Autowired
-    public SrcToBigDataParseService(ParseDataDao parseDataDao, FileTools fileTools, FileParseTools fileParseTools) {
-        this.parseDataDao = parseDataDao;
+    public SrcToBigDataParseService(MySQLDao mySQLDao, FileTools fileTools, FileParseTools fileParseTools) {
+        this.mySQLDao = mySQLDao;
         this.fileTools = fileTools;
         this.fileParseTools = fileParseTools;
     }
@@ -69,13 +69,13 @@ public class SrcToBigDataParseService {
         log.info("匹配到 hive_file 文件个数: {}", targetFileList.size());
         List<HiveFileEntity> fileContext = new ArrayList<>();
 //        解析前先清空 mysql 表
-        parseDataDao.truncateTable("hive_file_detail");
+        mySQLDao.truncateTable("hive_file_detail");
         log.info("表字段明细信息,开始存入数据库");
         for (File targetFile : targetFileList) {
             log.debug("开始解析文件: {}", targetFile);
             fileContext.add(fileParseTools.parseHiveFile(targetFile));
         }
-        parseDataDao.saveBatchHiveFileDetail("hive_file_detail", fileContext);
+        mySQLDao.saveBatchHiveFileDetail("hive_file_detail", fileContext);
         log.info("表字段明细信息,开始存入excel");
 //        excelTools.writeExcel(HiveFileEntity.class, project_path + "\\hive_file结果.xlsx", fileContext);
         EasyExcel.write(projectPath + "\\hive_file结果.xlsx", HiveFileEntity.class).sheet("hive_file结果").doWrite(fileContext);
@@ -93,13 +93,13 @@ public class SrcToBigDataParseService {
         List<File> targetFileList = fileTools.matchTargetFiles(projectPath, "src_to_bigdata", parseType, ".sh");
         log.info("匹配到 {} 文件个数: {}", parseType, targetFileList.size());
         List<ShellEntity> fileContext = new ArrayList<>();
-        parseDataDao.truncateTable(parseType + "_detail");
+        mySQLDao.truncateTable(parseType + "_detail");
         for (File targetFile : targetFileList) {
             log.debug("开始解析文件: {}", targetFile);
             fileContext.add(fileParseTools.parseShell(parseType, targetFile));
         }
         log.info("明细信息,开始存入数据库");
-        parseDataDao.saveBatchShellDetail(parseType + "_detail", fileContext);
+        mySQLDao.saveBatchShellDetail(parseType + "_detail", fileContext);
 //        excelTools.writeExcel(ShellEntity.class, project_path + File.separator + parseType + "结果.xlsx", fileContext);
         EasyExcel.write(projectPath + File.separator + parseType + "结果.xlsx", ShellEntity.class).sheet(parseType + "结果").doWrite(fileContext);
         log.info("解析完成, {} 共解析: {} 个, {} 行", parseType, targetFileList.size(), fileContext.size());
@@ -118,7 +118,7 @@ public class SrcToBigDataParseService {
         log.info("匹配到 {} 文件个数: {}", parseType, targetFileList.size());
         List<TableEntity> fileContext = new ArrayList<>();
 //        解析前先清空 mysql 表
-        parseDataDao.truncateTable(parseType + "_detail");
+        mySQLDao.truncateTable(parseType + "_detail");
 //        3.一次性插入
         log.info("表字段明细信息,开始存入数据库");
         for (File targetFile : targetFileList) {
@@ -151,7 +151,7 @@ public class SrcToBigDataParseService {
 //            3.一次性插入,数据库设置上限了.
         for (int i = fileContext.size(); i > 0; i -= 10000) {
 //            注意这里 sublist 是 [,)
-            parseDataDao.saveBatchTableDetail(parseType + "_detail", fileContext.subList((i - 10000) < 0 ? 0 : i - 10000, i));
+            mySQLDao.saveBatchTableDetail(parseType + "_detail", fileContext.subList((i - 10000) < 0 ? 0 : i - 10000, i));
         }
         log.info("表字段明细信息,开始存入excel");
         EasyExcel.write(projectPath + File.separator + parseType + "结果.xlsx", TableEntity.class).sheet(parseType + "结果").doWrite(fileContext);

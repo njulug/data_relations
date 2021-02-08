@@ -24,33 +24,35 @@ public class SpringStartMain {
     }
 
     /**
-     * @param args 参数
-     *             src_to_raw 解析
-     *             List<SrcToRawEntity> srcToRawList = parseController.srcToRawParse()
+     * 工作目录: C:\Workspace\ideaProject\data_relations
+     * 说明: sybase是连接数据库获取,会顺便存到工作目录 \SYBASE 下面.
+     * src_to_raw,raw_to_ods,src_to_bigdata都有文件在工作目录下,如有更新,按格式替换在里面即可
+     * 下面是对应的解析过程,按需执行,或者全部执行,全程大概11分钟
+     *
+     * @param args src_to_raw 解析
+     *             parseController.parseSrcToRaw();
      *             raw_to_ods 解析
-     *             List<RawToOdsEntity> rawToOdsList = parseController.rawToOdsParse();
-     *             src_to_big_data 解析
-     *             parseController.srcToBigDataParse();
-     *             分析业务
+     *             parseController.parseRawToOds();
+     *             sybase存储过程 解析
+     *             parseController.parseSybaseProcedure();
+     *             sybase视图 解析
+     *             parseController.parseSybaseView();
+     *             src_to_bigdata 解析,里面分为5个细项,具体点进这个方法看.
+     *             parseController.parseSrcToBigData();
+     *             数据库分析,执行存过
      *             parseController.analysisService();
-     *             <p>
-     *             stg_table 解析
-     *             List<TableEntity> stgTableList = parseController.stgTableParse();
-     *             stg_shell 解析
-     *             List<ShellEntity> stgShellList = parseController.stgShellParse();
-     *             ods_shell 解析
-     *             List<ShellEntity> odsShellList = parseController.odsShellParse();
-     *             azkaban 解析
-     *             List<AzkabanEntity> azkabanList = parseController.azkabanParse();
-     *             ods_table 解析
-     *             List<TableEntity> odsTableList = parseController.odsTableParse();
+     *             导出excel,模板在当前目录下,大数据平台梳理结果-模板.xlsx
+     *             parseController.exportResult();
      */
     public static void main(String[] args) {
         LocalDateTime startTime = LocalDateTime.now();
-//        List<SrcToRawEntity> srcToRawList = parseController.srcToRawParse();
-//        List<RawToOdsEntity> rawToOdsList = parseController.rawToOdsParse();
-        parseController.parseSybaseProcedure();
-//        parseController.srcToBigDataParse();
+//        TODO
+        parseController.parseOracleProcedure();
+//        parseController.parseSybaseProcedure();
+//        parseController.parseSybaseView();
+//        parseController.parseSrcToRaw();
+//        parseController.parseRawToOds();
+//        parseController.parseSrcToBigData();
 //        parseController.analysisService();
 //        parseController.exportResult();
 

@@ -2,7 +2,7 @@ package service;
 
 import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.databind.JsonNode;
-import dao.ParseDataDao;
+import dao.MySQLDao;
 import entity.raw_to_ods.RawToOdsEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +29,14 @@ import java.util.Map;
 @Service
 public class RawToOdsParseService {
     private final String projectPath = System.getProperty("user.dir");
-    private final ParseDataDao parseDataDao;
+    private final MySQLDao mySQLDao;
     private final XmlTools xmlTools;
     private final FileTools fileTools;
     private final JsonTools jsonTools;
 
     @Autowired
-    public RawToOdsParseService(ParseDataDao parseDataDao, XmlTools xmlTools, FileTools fileTools, JsonTools jsonTools) {
-        this.parseDataDao = parseDataDao;
+    public RawToOdsParseService(MySQLDao mySQLDao, XmlTools xmlTools, FileTools fileTools, JsonTools jsonTools) {
+        this.mySQLDao = mySQLDao;
         this.xmlTools = xmlTools;
         this.fileTools = fileTools;
         this.jsonTools = jsonTools;
@@ -46,11 +46,11 @@ public class RawToOdsParseService {
      * raw_to_ods 解析
      * @return 返回所有行
      */
-    public List<RawToOdsEntity> parse() {
+    public void parse() {
         List<File> targetFileList = fileTools.matchTargetFiles(projectPath,"raw_to_ods", ".kjb");
         log.info("匹配到目文件个数: {}", targetFileList.size());
         List<RawToOdsEntity> fileContext = new ArrayList<>();
-        parseDataDao.truncateTable("raw_to_ods_detail");
+        mySQLDao.truncateTable("raw_to_ods_detail");
         for (File targetFile : targetFileList) {
             log.debug("开始解析文件: {}", targetFile);
             RawToOdsEntity rawToOdsEntity = new RawToOdsEntity();
@@ -83,10 +83,9 @@ public class RawToOdsParseService {
             fileContext.add(rawToOdsEntity);
         }
         log.info("明细信息,开始存入数据库");
-        parseDataDao.saveBatchRawToOds("raw_to_ods_detail", fileContext);
+        mySQLDao.saveBatchRawToOds("raw_to_ods_detail", fileContext);
         log.info("明细信息,开始存入excel");
         EasyExcel.write(projectPath + "\\raw_to_ods结果.xlsx", RawToOdsEntity.class).sheet("raw_to_ods结果").doWrite(fileContext);
         log.info("解析完成, raw_to_ods 共解析: {} 个, {} 行",targetFileList.size(), fileContext.size());
-        return fileContext;
     }
 }

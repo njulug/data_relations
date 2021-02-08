@@ -2,7 +2,7 @@ package service;
 
 import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.databind.JsonNode;
-import dao.ParseDataDao;
+import dao.MySQLDao;
 import entity.src_to_raw.SrcToRawEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +28,14 @@ import java.util.Map;
 @Service
 public class SrcToRawParseService {
     private final String projectPath = System.getProperty("user.dir");
-    private final ParseDataDao parseDataDao;
+    private final MySQLDao mySQLDao;
     private final XmlTools xmlTools;
     private final FileTools fileTools;
     private final JsonTools jsonTools;
 
     @Autowired
-    public SrcToRawParseService(ParseDataDao parseDataDao, XmlTools xmlTools, FileTools fileTools, JsonTools jsonTools) {
-        this.parseDataDao = parseDataDao;
+    public SrcToRawParseService(MySQLDao mySQLDao, XmlTools xmlTools, FileTools fileTools, JsonTools jsonTools) {
+        this.mySQLDao = mySQLDao;
         this.xmlTools = xmlTools;
         this.fileTools = fileTools;
         this.jsonTools = jsonTools;
@@ -46,12 +46,11 @@ public class SrcToRawParseService {
      *
      * @return 返回所有行
      */
-    public List<SrcToRawEntity> parse() {
+    public void parse() {
         log.info("-------开始解析 src_to_raw");
         List<File> targetFileList = fileTools.matchTargetFiles(projectPath, "src_to_raw", ".ktr");
         log.info("总共获取到文件个数: {}", targetFileList.size());
         List<SrcToRawEntity> fileContext = new ArrayList<>();
-        parseDataDao.truncateTable("src_to_raw_detail");
         for (File targetFile : targetFileList) {
             log.debug("开始解析文件: {}", targetFile);
             SrcToRawEntity srcToRawEntity = new SrcToRawEntity();
@@ -73,11 +72,11 @@ public class SrcToRawParseService {
             fileContext.add(srcToRawEntity);
         }
         log.info("明细信息,开始存入数据库");
-        parseDataDao.saveBatchSrcToRaw("src_to_raw_detail", fileContext);
+        mySQLDao.truncateTable("src_to_raw_detail");
+        mySQLDao.saveBatchSrcToRaw("src_to_raw_detail", fileContext);
         log.info("明细信息,开始存入excel");
 //        excelTools.writeExcel(SrcToRawEntity.class, project_path + "\\src_to_raw结果.xlsx", fileContext);
         EasyExcel.write(projectPath + "\\src_to_raw结果.xlsx", SrcToRawEntity.class).sheet("src_to_raw结果").doWrite(fileContext);
         log.info("解析完成,src_to_raw 共解析: {} 个, {} 行", targetFileList.size(), fileContext.size());
-        return fileContext;
     }
 }

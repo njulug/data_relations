@@ -1,12 +1,13 @@
 package main;
 
-import gudusoft.gsqlparser.EDbVendor;
+import com.fasterxml.jackson.databind.JsonNode;
 import gudusoft.gsqlparser.IMetaDatabase;
-import gudusoft.gsqlparser.TGSqlParser;
 import tools.FileTools;
+import tools.JsonTools;
+import tools.XmlTools;
 
 import java.io.File;
-import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,13 +80,18 @@ public class Test {
     }
 
     public static void main(String[] args) {
-        TGSqlParser sqlParser = new TGSqlParser(EDbVendor.dbvsybase);
         FileTools fileTools = new FileTools();
-//        fileTools.truncateDir("C:\\Workspace\\ideaProject\\data_relations\\PROCEDURE");
-        List<File> procedureFiles = fileTools.matchTargetFiles(projectPath, "procedure", ".sql");
-        System.out.println("procedureFiles.size() = " + procedureFiles.size());
-    }
+        JsonTools jsonTools = new JsonTools();
 
+        XmlTools xmlTools = new XmlTools(jsonTools);
+        String absolutePath = "C:\\Workspace\\ideaProject\\data_relations\\SRC_TO_RAW\\XRZ\\ktr\\2-2-2获取事件对应的题材信息.ktr";
+        JsonNode parseJsonNode = jsonTools.object2Json(xmlTools.parseKtrFile(new File(absolutePath)));
+        Map<String, String> ascMap = jsonTools.ergodicJson(parseJsonNode, "asc");
+        Map<String, String> descMap = jsonTools.ergodicJson(parseJsonNode, "desc");
+        System.out.println("parseJsonNode = " + parseJsonNode);
+        System.out.println("ascMap = " + ascMap);
+        System.out.println("descMap = " + descMap);
+    }
 
     public String removeCursorsAndKeywords(String value) {
         Pattern scriptPattern = Pattern.compile("( loop\\s+FETCH\\s+NEXT)+",

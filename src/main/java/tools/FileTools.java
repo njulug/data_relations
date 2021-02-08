@@ -47,6 +47,7 @@ public class FileTools {
 
     /**
      * 清空目录下所有文件
+     *
      * @param dir 目录
      */
     public void truncateDir(String dir) {

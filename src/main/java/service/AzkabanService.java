@@ -1,7 +1,7 @@
 package service;
 
 import com.alibaba.excel.EasyExcel;
-import dao.ParseDataDao;
+import dao.MySQLDao;
 import entity.excel.AzkabanDataListener;
 import entity.azkaban.AzkabanEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @Service
 public class AzkabanService {
     private final String projectPath = System.getProperty("user.dir");
-    private final ParseDataDao parseDataDao;
+    private final MySQLDao mySQLDao;
     private final FileTools fileTools;
 
     @Autowired
-    public AzkabanService(ParseDataDao parseDataDao, FileTools fileTools) {
-        this.parseDataDao = parseDataDao;
+    public AzkabanService(MySQLDao mySQLDao, FileTools fileTools) {
+        this.mySQLDao = mySQLDao;
         this.fileTools = fileTools;
     }
 
@@ -42,7 +42,7 @@ public class AzkabanService {
     public List<AzkabanEntity> parse() {
         List<File> targetFileList = fileTools.matchTargetFiles(projectPath, "azkaban", ".xlsx");
         log.info("总共获取到文件个数: {}", targetFileList.size());
-        parseDataDao.truncateTable("azkaban_detail");
+        mySQLDao.truncateTable("azkaban_detail");
         List<AzkabanEntity> azkabanAllFileList = new ArrayList<>();
         List<AzkabanEntity> azkabanThisFileList = new ArrayList<>();
         for (File targetFile : targetFileList) {
@@ -143,7 +143,7 @@ public class AzkabanService {
 //        parseDataDao.saveBatchAzkaban("azkaban_detail", azkabanAllFileList);
         for (int i = azkabanAllFileList.size(); i > 0; i -= 10000) {
 //            注意这里 sublist 是 [,)
-            parseDataDao.saveBatchAzkaban("azkaban_detail", azkabanAllFileList.subList((i - 10000) < 0 ? 0 : i - 10000, i));
+            mySQLDao.saveBatchAzkaban("azkaban_detail", azkabanAllFileList.subList((i - 10000) < 0 ? 0 : i - 10000, i));
         }
         EasyExcel.write(projectPath + "\\azkaban结果.xlsx", AzkabanEntity.class).sheet().doWrite(azkabanAllFileList);
         log.info("azkaban 解析完成,共解析: {} 个, {} 行", targetFileList.size(), azkabanAllFileList.size());

@@ -74,20 +74,48 @@ public class SqlParserTools {
 
     @Test
     public void test() {
-        File file = new File("C:\\Workspace\\ideaProject\\data_relations\\PROCEDURE\\dba_p_cust_entst_use_tern.sql");
-//        File file = new File("C:\\Workspace\\ideaProject\\data_relations\\PROCEDURE\\p_brkbis_ast_trd_m_dev.sql");
-//        parseProcedureTables(sql, "");
-        FileTools fileTools = new FileTools();
-        Set<String> sourceTableSet = new HashSet<>();
-        Set<String> targetTableSet = new HashSet<>();
-//        parseSybaseProcedureTables(file, sourceTableSet, targetTableSet);
-        parseSybaseProcedureTables(fileTools.removeCursorsAndKeywords(fileTools.readToBuffer(file)), sourceTableSet, targetTableSet, "");
-        System.out.println("sourceTableSet = " + sourceTableSet);
-        System.out.println("sourceTableSet.size() = " + sourceTableSet.size());
-        System.out.println("targetTableSet = " + targetTableSet);
-        System.out.println("targetTableSet.size() = " + targetTableSet.size());
-//        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.SYBASE).getSourceTargetTables(sql, "");
-//        System.out.println("sourceTargetTables = " + sourceTargetTables);
+//        File file = new File("C:\\Workspace\\ideaProject\\data_relations\\PROCEDURE\\dba_p_cust_entst_use_tern.sql");
+//        FileTools fileTools = new FileTools();
+//        Set<String> sourceTableSet = new HashSet<>();
+//        Set<String> targetTableSet = new HashSet<>();
+//        parseSybaseProcedureTables(fileTools.removeCursorsAndKeywords(fileTools.readToBuffer(file)), sourceTableSet, targetTableSet, "");
+//        System.out.println("sourceTableSet = " + sourceTableSet);
+//        System.out.println("sourceTableSet.size() = " + sourceTableSet.size());
+//        System.out.println("targetTableSet = " + targetTableSet);
+//        System.out.println("targetTableSet.size() = " + targetTableSet.size());
+        String sql = "\n" +
+                "\t\tSELECT\n" +
+                "'${TradeDate.init_date}' as OC_DATE\n" +
+                ", '${Val.table_prefix}' as prefix_name\n" +
+                ", FJJLX\n" +
+                ", FJJZL\n" +
+                ", FJJLB\n" +
+                ", FJJDM\n" +
+                ", FJJMC\n" +
+                ", FJJGLREN\n" +
+                ", FJJTGREN\n" +
+                ", FGLRJC\n" +
+                ", FTGRJC\n" +
+                ", FJJGM\n" +
+                ", FJJCLDATE\n" +
+                ", FQCJZ\n" +
+                ", FPJE\n" +
+                ", FPJELJ\n" +
+                ", FJJGLRFV\n" +
+                ", FJJTGRFV\n" +
+                ", FJJXWYJLV\n" +
+                ", FJJSHZQYJLV\n" +
+                ", FJJSZZQYJLV\n" +
+                ", FJFRI\n" +
+                ", FTAMS\n" +
+                ", FSH\n" +
+                ", FZZR\n" +
+                ", FCHK\n" +
+                ", FMODDATE\n" +
+                ", FQYDATE\n" +
+                "FROM \"${Val.table_owner}.${Val.table_prefix}${Val.table_name}\"\n";
+        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.SYBASE).getSourceTargetTables(sql, "");
+        System.out.println("sourceTargetTables = " + sourceTargetTables);
 //        System.out.println(setJdbc(DataBaseConstant.SYBASE).getTableNameAndColumns(sql, ""));
 //        System.out.println(setJdbc(DataBaseConstant.ORACLE).getTableNameAndComment(sql, ""));
 //        System.out.println(setJdbc(DataBaseConstant.ORACLE).getAllColumns(sql, ""));
@@ -142,7 +170,10 @@ public class SqlParserTools {
         TStatementList statements = stmt.getStatements();
         if (targetTable != null) {
 //            System.out.println("targetTable = " + targetTable);
-            targetTableSet.add(targetTable.getFullName().trim().toLowerCase().replace("\"", ""));
+            String targetTableName = targetTable.getFullName().trim().toLowerCase().replace("\"", "");
+            if (!targetTableName.contains("#")) {
+                targetTableSet.add(targetTableName);
+            }
         }
         for (int i = 0; i < tableList.size(); i++) {
             TTable table = tableList.getTable(i);
@@ -194,7 +225,7 @@ public class SqlParserTools {
      * @param absolutePath sql 的路径
      * @return 返回 (源表,目标表)
      */
-    Map<String, String> getSourceTargetTables(String sql, String absolutePath) {
+    public Map<String, String> getSourceTargetTables(String sql, String absolutePath) {
         List<SQLStatement> stmtList;
         try {
             stmtList = SQLUtils.parseStatements(sql, dbType);

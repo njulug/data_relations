@@ -4,7 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import dao.AnalysisDao;
-import dao.ParseDataDao;
+import dao.MySQLDao;
 import entity.azkaban.AzkabanEntity;
 import entity.excel.FreezeAndFilter;
 import entity.src_to_bigdata.ShellEntity;
@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
 public class AnalysisService {
     private final String projectPath = System.getProperty("user.dir");
     private final AnalysisDao analysisDao;
-    private final ParseDataDao parseDataDao;
+    private final MySQLDao mySQLDao;
 
     @Autowired
-    public AnalysisService(AnalysisDao analysisDao, ParseDataDao parseDataDao) {
+    public AnalysisService(AnalysisDao analysisDao, MySQLDao mySQLDao) {
         this.analysisDao = analysisDao;
-        this.parseDataDao = parseDataDao;
+        this.mySQLDao = mySQLDao;
     }
 
     public void execProcedure(List<String> procedureNameList) {
@@ -198,8 +198,8 @@ public class AnalysisService {
             }
         }
         log.info("明细信息,开始存入数据库");
-        parseDataDao.truncateTable("src_to_bigdata_detail");
-        parseDataDao.saveBatchSrcToBigData("src_to_bigdata_detail", srcToBigDataList);
+        mySQLDao.truncateTable("src_to_bigdata_detail");
+        mySQLDao.saveBatchSrcToBigData("src_to_bigdata_detail", srcToBigDataList);
         log.info("src_to_bigdata 整合完成 {} 个", srcToBigDataList.size());
         EasyExcel.write(projectPath + "\\src_to_bigdata结果.xlsx", SrcToBigDataEntity.class).sheet("src_to_bigdata结果").doWrite(srcToBigDataList);
     }

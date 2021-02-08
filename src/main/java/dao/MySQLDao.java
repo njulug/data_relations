@@ -1,10 +1,11 @@
 package dao;
 
 import entity.azkaban.AzkabanEntity;
-import entity.procedure.ProcedureEntity;
+import entity.sybase.ProcedureEntity;
 import entity.raw_to_ods.RawToOdsEntity;
 import entity.src_to_bigdata.*;
 import entity.src_to_raw.SrcToRawEntity;
+import entity.sybase.ViewEntity;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ import java.util.List;
  * Description:
  */
 @Repository
-public interface ParseDataDao {
+public interface MySQLDao {
     @Update("truncate table ${tableName}")
     void truncateTable(String tableName);
 
@@ -41,4 +42,6 @@ public interface ParseDataDao {
     void saveBatchSrcToBigData(String tableName, List<SrcToBigDataEntity> srcToBigDataList);
 
     void saveBatchProcedure(String tableName, List<ProcedureEntity> procedureList);
+
+    void saveBatchView(String tableName, List<ViewEntity> viewList);
 }

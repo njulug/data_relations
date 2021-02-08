@@ -1,6 +1,6 @@
 package main;
 
-import dao.ParseDataDao;
+import dao.MySQLDao;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -20,7 +20,7 @@ public class MybatisTest {
     private InputStream in;
     private SqlSessionFactory factory;
     private SqlSession session;
-    private ParseDataDao parseDataDao;
+    private MySQLDao mySQLDao;
 
     @Before
     public void init() throws Exception {
@@ -28,7 +28,7 @@ public class MybatisTest {
         factory = new SqlSessionFactoryBuilder().build(in);
 //        session = factory.openSession(ExecutorType.BATCH, false);
         session = factory.openSession();
-        parseDataDao = session.getMapper(ParseDataDao.class);
+        mySQLDao = session.getMapper(MySQLDao.class);
     }
 
     @After
@@ -60,6 +60,6 @@ public class MybatisTest {
 //        list.add(dataEntity);
 //        list.add(dataEntity1);
 //        dataDao.saveBatchData(list);
-        parseDataDao.truncateTable("hive_table_detail");
+        mySQLDao.truncateTable("hive_table_detail");
     }
 }

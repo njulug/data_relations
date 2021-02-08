@@ -1,4 +1,4 @@
-package entity.procedure;
+package entity.sybase;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;

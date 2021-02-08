@@ -37,7 +37,7 @@
 
 
     <!--统一的dataSource-->
-    <bean id="dynamicDataSource" class="dao.DynamicDataSource">
+    <bean id="dynamicDataSource" class="dao.DynamicSource">
         <property name="targetDataSources">
             <map key-type="java.lang.String">
                 <!--通过不同的key决定用哪个dataSource-->

@@ -38,23 +38,22 @@ public class XmlTools {
     @Test
     public void test() {
 //        kjb 解析
-        String absolutePath = "C:\\Workspace\\ideaProject\\data_relations\\RAW_TO_ODS\\SJCK\\CFS2\\ODS_CFS2_SIM_STOCKBACKBUYTRADE.kjb";
-        List<String> fileList = new ArrayList<>();
-        JsonNode parseJsonNode = jsonTools.object2Json(parseKjbFile(new File(absolutePath)));
-        System.out.println("parseJsonNode = " + parseJsonNode);
-        Map<String, String> ascMap = jsonTools.ergodicJson(parseJsonNode, "asc");
-        System.out.println("ascMap = " + ascMap);
-        Map<String, String> descMap = jsonTools.ergodicJson(parseJsonNode, "desc");
-        System.out.println("descMap = " + descMap);
-//                ktr 解析
-//        String absolutePath = "D:\\WorkSpace\\ideaProject\\data_relations\\SRC_TO_RAW\\HQ\\raw_hq_real_sh_mktdt000.ktr";
-//        String absolutePath = "C:\\Workspace\\ideaProject\\data_relations\\RAW_TO_ODS\\SJCK\\PROC_REPORT\\ktr\\P_REPORT_GMGT_INCOME_PAYOUT_DETAIL.ktr";
-//        JsonNode parseJsonNode = jsonUtils.object2Json(parseKtrFile(absolutePath));
-//        Map<String, String> ascMap = jsonUtils.ergodicJson(parseJsonNode, "asc");
-//        Map<String, String> descMap = jsonUtils.ergodicJson(parseJsonNode, "desc");
+//        String absolutePath = "C:\\Workspace\\ideaProject\\data_relations\\RAW_TO_ODS\\SJCK\\CFS2\\ODS_CFS2_SIM_STOCKBACKBUYTRADE.kjb";
+//        List<String> fileList = new ArrayList<>();
+//        JsonNode parseJsonNode = jsonTools.object2Json(parseKjbFile(new File(absolutePath)));
 //        System.out.println("parseJsonNode = " + parseJsonNode);
+//        Map<String, String> ascMap = jsonTools.ergodicJson(parseJsonNode, "asc");
 //        System.out.println("ascMap = " + ascMap);
+//        Map<String, String> descMap = jsonTools.ergodicJson(parseJsonNode, "desc");
 //        System.out.println("descMap = " + descMap);
+//                ktr 解析
+        String absolutePath = "C:\\Workspace\\ideaProject\\data_relations\\SRC_TO_RAW\\CFS\\raw_cfs_run_cfs_bd_accsubj.ktr";
+        JsonNode parseJsonNode = jsonTools.object2Json(parseKtrFile(new File(absolutePath)));
+        Map<String, String> ascMap = jsonTools.ergodicJson(parseJsonNode, "asc");
+        Map<String, String> descMap = jsonTools.ergodicJson(parseJsonNode, "desc");
+        System.out.println("parseJsonNode = " + parseJsonNode);
+        System.out.println("ascMap = " + ascMap);
+        System.out.println("descMap = " + descMap);
     }
 
     /**
@@ -325,6 +324,15 @@ public class XmlTools {
         Map<String, String> sourceTargetTables;
         Map<String, List<String>> tableNameAndWhereColumns;
         switch (stepType) {
+            case "JsonInput":
+                ktrComponentMap.put("sourceTable", "文件输入: " + step.element("file").elementText("name"));
+                break;
+            case "ExcelInput":
+                ktrComponentMap.put("sourceTable", "文件输入: " + step.element("file").elementText("name"));
+                break;
+            case "CsvInput":
+                ktrComponentMap.put("sourceTable", "文件输入: " + step.elementText("filename"));
+                break;
             case "XBaseInput":
                 ktrComponentMap.put("sourceTable", "文件输入: " + step.elementText("file_dbf"));
                 break;
@@ -332,7 +340,7 @@ public class XmlTools {
                 ktrComponentMap.put("sourceTable", "文件输入: " + step.element("file").elementText("name"));
                 break;
             case "TableInput":
-                String sql = convertFormat(step.elementText("sql"));
+                String sql = convertFormat(step.elementText("sql")).replace("..",".");
                 sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, absolutePath);
 //                            这里解析出来是 (表名,targetTbale / sourceTbale) 反转一下
                 sourceTargetTables.forEach((key, value) -> {
@@ -412,8 +420,8 @@ public class XmlTools {
                 ktrComponentMap.put("targetTable", "文件输出: " + convertFormat(step.element("file").elementText("name")));
                 break;
             case "OraBulkLoader":
-                ktrComponentMap.put("sourceTable", (step.elementText("schema") + "." + step.elementText("table")).toLowerCase().trim());
-                ktrComponentMap.put("sourceConnect", getConnect(step.elementText("connection")));
+                ktrComponentMap.put("targetTable", (step.elementText("schema") + "." + step.elementText("table")).toLowerCase().trim());
+                ktrComponentMap.put("targetConnect", getConnect(step.elementText("connection")));
                 break;
             case "RowsToResult":
                 ktrComponentMap.put("targetTable", "RowsToResult: " + convertFormat(step.elementText("name")));
