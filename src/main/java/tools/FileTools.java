@@ -39,7 +39,7 @@ public class FileTools {
         PrintStream ps = null;
         try {
             ps = new PrintStream(new FileOutputStream(file));
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             log.error("文件写入失败: {}", e.getMessage());
         }
         ps.println(context);
@@ -361,11 +361,11 @@ public class FileTools {
                 Pattern.CASE_INSENSITIVE);
         value = scriptPattern.matcher(value).replaceAll("('1')");
 
-        scriptPattern = Pattern.compile("((-|\\+){1}#)+",
+        scriptPattern = Pattern.compile("((-|\\+)#)+",
                 Pattern.CASE_INSENSITIVE);
         value = scriptPattern.matcher(value).replaceAll("- #");
 
-        scriptPattern = Pattern.compile("(\\*(-|\\+){1})+",
+        scriptPattern = Pattern.compile("(\\*(-|\\+))+",
                 Pattern.CASE_INSENSITIVE);
         value = scriptPattern.matcher(value).replaceAll("\\* -");
 

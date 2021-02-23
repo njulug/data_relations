@@ -185,15 +185,26 @@ public class ParseController {
     }
 
     @ResponseBody
-    @PostMapping("/parseOracleView")
-    public void parseOracleView() {
-        oracleService.parseView();
+    @PostMapping("/parseOracleDchis")
+    public void parseOracleDchis() {
+        oracleService.parseDchis();
     }
 
     @ResponseBody
-    @PostMapping("/parseOracleProcedure")
-    public void parseOracleProcedure() {
-        oracleService.parseProcedure();
+    @PostMapping("/parseOracleDcraw")
+    public void parseOracleDcraw() {
+        oracleService.parseDcraw();
+    }
+
+    @ResponseBody
+    @PostMapping("/parseOracleDcrun")
+    public void parseOracleDcrun() {
+        oracleService.parseDcrun();
+    }
+    @ResponseBody
+    @PostMapping("/parseOracleDcser")
+    public void parseOracleDcser() {
+        oracleService.parseDcser();
     }
 
     @ResponseBody

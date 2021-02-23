@@ -1,10 +1,14 @@
 package dao;
 
 import entity.azkaban.AzkabanEntity;
-import entity.sybase.ProcedureEntity;
+import entity.oracle.Dchis;
+import entity.oracle.Dcraw;
+import entity.oracle.Dcrun;
+import entity.oracle.Dcser;
 import entity.raw_to_ods.RawToOdsEntity;
 import entity.src_to_bigdata.*;
 import entity.src_to_raw.SrcToRawEntity;
+import entity.sybase.ProcedureEntity;
 import entity.sybase.ViewEntity;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
@@ -44,4 +48,12 @@ public interface MySQLDao {
     void saveBatchProcedure(String tableName, List<ProcedureEntity> procedureList);
 
     void saveBatchView(String tableName, List<ViewEntity> viewList);
+
+    void saveBatchDchis(String tableName, List<Dchis> dchisList);
+
+    void saveBatchDcraw(String tableName, List<Dcraw> dcrawList);
+
+    void saveBatchDcrun(String tableName, List<Dcrun> dcrunList);
+
+    void saveBatchDcser(String tableName, List<Dcser> dcserList);
 }

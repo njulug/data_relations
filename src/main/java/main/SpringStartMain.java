@@ -46,8 +46,10 @@ public class SpringStartMain {
      */
     public static void main(String[] args) {
         LocalDateTime startTime = LocalDateTime.now();
-//        TODO
-        parseController.parseOracleProcedure();
+//        parseController.parseOracleDchis();
+//        parseController.parseOracleDcraw();
+//        parseController.parseOracleDcrun();
+        parseController.parseOracleDcser();
 //        parseController.parseSybaseProcedure();
 //        parseController.parseSybaseView();
 //        parseController.parseSrcToRaw();

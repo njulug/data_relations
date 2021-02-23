@@ -83,45 +83,104 @@ public class SqlParserTools {
 //        System.out.println("sourceTableSet.size() = " + sourceTableSet.size());
 //        System.out.println("targetTableSet = " + targetTableSet);
 //        System.out.println("targetTableSet.size() = " + targetTableSet.size());
-        String sql = "\n" +
-                "\t\tSELECT\n" +
-                "'${TradeDate.init_date}' as OC_DATE\n" +
-                ", '${Val.table_prefix}' as prefix_name\n" +
-                ", FJJLX\n" +
-                ", FJJZL\n" +
-                ", FJJLB\n" +
-                ", FJJDM\n" +
-                ", FJJMC\n" +
-                ", FJJGLREN\n" +
-                ", FJJTGREN\n" +
-                ", FGLRJC\n" +
-                ", FTGRJC\n" +
-                ", FJJGM\n" +
-                ", FJJCLDATE\n" +
-                ", FQCJZ\n" +
-                ", FPJE\n" +
-                ", FPJELJ\n" +
-                ", FJJGLRFV\n" +
-                ", FJJTGRFV\n" +
-                ", FJJXWYJLV\n" +
-                ", FJJSHZQYJLV\n" +
-                ", FJJSZZQYJLV\n" +
-                ", FJFRI\n" +
-                ", FTAMS\n" +
-                ", FSH\n" +
-                ", FZZR\n" +
-                ", FCHK\n" +
-                ", FMODDATE\n" +
-                ", FQYDATE\n" +
-                "FROM \"${Val.table_owner}.${Val.table_prefix}${Val.table_name}\"\n";
-        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.SYBASE).getSourceTargetTables(sql, "");
-        System.out.println("sourceTargetTables = " + sourceTargetTables);
+//        String sql = new FileParseTools().parseDchis(new File("C:\\Workspace\\ideaProject\\data_relations\\ORACLE\\dchis.sql"));
+        String sql = "CREATE OR REPLACE Procedure SP_I_OMS_HIS_BLOBFILE(I_JOB_NAME   In DCMETA.PKG_DCTYPE.DCVARCHAR128,\n" +
+                "                                                        I_INIT_DATE  In DCMETA.PKG_DCTYPE.DCDATE,\n" +
+                "                                                        I_BEGIN_DATE In DCMETA.PKG_DCTYPE.DCDATE,\n" +
+                "                                                        I_END_DATE   In DCMETA.PKG_DCTYPE.DCDATE)\n" +
+                "--============================================================================\n" +
+                "  --对象编号   :\n" +
+                "  --对象名称   : dcraw.hs08_his_blobfile\n" +
+                "  --对象标识   :\n" +
+                "  --创 建 人   : hzy\n" +
+                "  --创建日期   :\n" +
+                "  --功能描述   : 表dchis.oms_his_blobfile RAW to ODS 自动生成。\n" +
+                "  --修改说明   :\n" +
+                "  --============================================================================\n" +
+                " Is\n" +
+                "  V_SQLCODE     DCMETA.PKG_DCTYPE.DCNUM Default 0;\n" +
+                "  V_ERROR_MSG   DCMETA.PKG_DCTYPE.DCVARCHAR4000 Default ' ';\n" +
+                "  V_ERROR_LEVEL DCMETA.PKG_DCTYPE.DCTYPE Default '2'; --信息级别：'0'消息、'1'警告、'2'错误\n" +
+                "\n" +
+                "  V_JOB_NAME   DCMETA.PKG_DCTYPE.DCVARCHAR128 := NVL(I_JOB_NAME, ' ');\n" +
+                "  V_INIT_DATE  DCMETA.PKG_DCTYPE.DCNUM := NVL(I_INIT_DATE, 0);\n" +
+                "  V_BEGIN_DATE DCMETA.PKG_DCTYPE.DCDATE := NVL(I_BEGIN_DATE, 0);\n" +
+                "  V_END_DATE   DCMETA.PKG_DCTYPE.DCDATE := NVL(I_END_DATE, 0);\n" +
+                "Begin\n" +
+                "\n" +
+                "  Execute Immediate 'TRUNCATE TABLE  dchis.oms_his_blobfile';\n" +
+                "  Insert Into DCHIS.OMS_HIS_BLOBFILE\n" +
+                "    (OC_DATE, INIT_DATE, FILE_GUID, ORDINAL, BLOB_NO, DEAL_FLAG, FILE_OBJ, DATE_CLEAR, CHANGE_TIME, REMARK)\n" +
+                "    Select OC_DATE, INIT_DATE, FILE_GUID, ORDINAL, BLOB_NO, DEAL_FLAG, FILE_OBJ, DATE_CLEAR, Sysdate As CHANGE_TIME, REMARK REGISTER_DATE\n" +
+                "    \n" +
+                "      From DCRAW.HS08_HIS_BLOBFILE;\n" +
+                "  Commit;\n" +
+                "Exception\n" +
+                "  When Others Then\n" +
+                "    V_SQLCODE   := Sqlcode;\n" +
+                "    V_ERROR_MSG := Sqlerrm;\n" +
+                "    Rollback;\n" +
+                "    DCMETA.SP_WRITE_JOB_LOG(V_JOB_NAME, V_ERROR_LEVEL, V_SQLCODE || V_ERROR_MSG);\n" +
+                "    Raise;\n" +
+                "End SP_I_OMS_HIS_BLOBFILE;";
+//        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.SYBASE).getSourceTargetTables(sql, "");
+//        System.out.println("sourceTargetTables = " + sourceTargetTables);
 //        System.out.println(setJdbc(DataBaseConstant.SYBASE).getTableNameAndColumns(sql, ""));
-//        System.out.println(setJdbc(DataBaseConstant.ORACLE).getTableNameAndComment(sql, ""));
+        System.out.println(setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, ""));
 //        System.out.println(setJdbc(DataBaseConstant.ORACLE).getAllColumns(sql, ""));
 //        System.out.println(setJdbc(DataBaseConstant.HIVE).getFieldsDetail(sql, ""));
     }
 
+    /**
+     * 获取 sql 的 源表,目标表
+     *
+     * @param sql          传入 sql
+     * @param absolutePath sql 的路径
+     * @return 返回 (源表,目标表)
+     */
+    public Map<String, String> getSourceTargetTables(String sql, String absolutePath) {
+        List<SQLStatement> stmtList;
+        try {
+            stmtList = SQLUtils.parseStatements(sql, dbType);
+            for (SQLStatement stmt : stmtList) {
+                stmt.accept(visitor);
+            }
+        } catch (Exception e) {
+            log.error("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), dbType, absolutePath);
+            try {
+                stmtList = SQLUtils.parseStatements(sql, JdbcConstants.HIVE);
+                for (SQLStatement stmt : stmtList) {
+                    stmt.accept(visitor);
+                }
+            } catch (Exception exception) {
+                log.error("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), JdbcConstants.HIVE, absolutePath);
+//                log.error("sql:\n {}", sql);
+            }
+        }
+
+        Map<String, String> resultMap = new HashMap<>();
+        Map<TableStat.Name, TableStat> visitorTables = visitor.getTables();
+        log.debug("sql解析出的table列表: {}", visitorTables);
+        Set<TableStat.Name> names = visitorTables.keySet();
+        for (TableStat.Name name : visitorTables.keySet()) {
+            String tableName = name.getName().toLowerCase().trim();
+            String tableType = visitorTables.get(name).toString().toLowerCase().trim();
+            if (tableType.contains("select")) {
+                resultMap.put(tableName, "sourceTable");
+            } else {
+                resultMap.put(tableName, "targetTable");
+            }
+        }
+        return resultMap;
+    }
+
+    /**
+     * 解析存储过程中的表名
+     *
+     * @param sqlFile        sql文件
+     * @param sourceTableSet 解析出的源表名
+     * @param targetTableSet 解析出的目标表名
+     */
     public static void parseSybaseProcedureTables(File sqlFile,
                                                   Set<String> sourceTableSet,
                                                   Set<String> targetTableSet) {
@@ -144,6 +203,13 @@ public class SqlParserTools {
         }
     }
 
+    /**
+     * 解析存储过程中的表名
+     *
+     * @param sql            sql内容
+     * @param sourceTableSet 解析出的源表名
+     * @param targetTableSet 解析出的目标表名
+     */
     public static void parseSybaseProcedureTables(String sql,
                                                   Set<String> sourceTableSet,
                                                   Set<String> targetTableSet,
@@ -163,6 +229,14 @@ public class SqlParserTools {
         }
     }
 
+    /**
+     * 递归获取sql树
+     *
+     * @param stmt           对象
+     * @param layer          层次
+     * @param sourceTableSet 解析出的源表名
+     * @param targetTableSet 解析出的目标表名
+     */
     private static void recursionSqlStatement(TCustomSqlStatement stmt, int layer, Set<String> sourceTableSet, Set<String> targetTableSet) {
         log.debug("递归获取表名,目前第: {} 子层", layer++);
         TTable targetTable = stmt.getTargetTable();
@@ -216,50 +290,6 @@ public class SqlParserTools {
         SQLCreateProcedureStatement sqlCreateProcedureStatement = (SQLCreateProcedureStatement) parser.parseStatement();
         sqlCreateProcedureStatement.accept(visitor);
         System.out.println("visitor.getTables() = " + visitor.getTables());
-    }
-
-    /**
-     * 获取 sql 的 源表,目标表
-     *
-     * @param sql          传入 sql
-     * @param absolutePath sql 的路径
-     * @return 返回 (源表,目标表)
-     */
-    public Map<String, String> getSourceTargetTables(String sql, String absolutePath) {
-        List<SQLStatement> stmtList;
-        try {
-            stmtList = SQLUtils.parseStatements(sql, dbType);
-            for (SQLStatement stmt : stmtList) {
-                stmt.accept(visitor);
-            }
-        } catch (Exception e) {
-            log.debug("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), dbType, absolutePath);
-            try {
-                stmtList = SQLUtils.parseStatements(sql, JdbcConstants.HIVE);
-                for (SQLStatement stmt : stmtList) {
-                    stmt.accept(visitor);
-                }
-            } catch (Exception exception) {
-                log.warn("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), JdbcConstants.HIVE, absolutePath);
-                log.warn("sql:\n {}", sql);
-            }
-
-        }
-
-        Map<String, String> resultMap = new HashMap<>();
-        Map<TableStat.Name, TableStat> visitorTables = visitor.getTables();
-        log.debug("sql解析出的table列表: {}", visitorTables);
-        Set<TableStat.Name> names = visitorTables.keySet();
-        for (TableStat.Name name : visitorTables.keySet()) {
-            String tableName = name.getName().toLowerCase().trim();
-            String tableType = visitorTables.get(name).toString().toLowerCase().trim();
-            if (tableType.contains("select")) {
-                resultMap.put(tableName, "sourceTable");
-            } else {
-                resultMap.put(tableName, "targetTable");
-            }
-        }
-        return resultMap;
     }
 
     /**

@@ -113,4 +113,48 @@
         </foreach>
     </insert>
 
+    <insert id="saveBatchDchis">
+        INSERT INTO ${param1}
+        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="dchisList" separator=",">
+            (#{dchisList.fileAddr},#{dchisList.fileName},
+            #{dchisList.tableType},#{dchisList.tableName},
+            #{dchisList.createTime}, #{dchisList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchDcraw">
+        INSERT INTO ${param1}
+        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="dcrawList" separator=",">
+            (#{dcrawList.fileAddr},#{dcrawList.fileName},
+            #{dcrawList.tableType},#{dcrawList.tableName},
+            #{dcrawList.createTime}, #{dcrawList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchDcrun">
+        INSERT INTO ${param1}
+        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="dcrunList" separator=",">
+            (#{dcrunList.fileAddr},#{dcrunList.fileName},
+            #{dcrunList.tableType},#{dcrunList.tableName},
+            #{dcrunList.createTime}, #{dcrunList.modifyTime})
+        </foreach>
+    </insert>
+
+    <insert id="saveBatchDcser">
+        INSERT INTO ${param1}
+        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        VALUES
+        <foreach collection="param2" item="dcserList" separator=",">
+            (#{dcserList.fileAddr},#{dcserList.fileName},
+            #{dcserList.tableType},#{dcserList.tableName},
+            #{dcserList.createTime}, #{dcserList.modifyTime})
+        </foreach>
+    </insert>
+
 </mapper>

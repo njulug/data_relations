@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 /**
  * Author:BYDylan
  * Date:2020/8/11
- * Description: stg_shell, ods_shell 解析工具类
+ * Description: 文件解析工具类
  */
 @Slf4j
 @Repository
@@ -25,7 +25,8 @@ public class FileParseTools {
     @Test
     public void test() {
         String absolutePath = "C:\\Workspace\\ideaProject\\data_relations\\SRC_TO_BIGDATA\\glkj\\stg_shell\\t_stg_glkj_view_sc_shareresult_hv.sh";
-        System.out.println(parseStgShell(new File(absolutePath)));
+//        System.out.println(parseStgShell(new File(absolutePath)));
+        System.out.println("parseDchis(new File(\"\")) = " + clearOracleSpecialCharacters(new File("C:\\Workspace\\ideaProject\\data_relations\\ORACLE\\dcraw.sql")));
     }
 
     public ShellEntity parseShell(String parseType, File targetFile) {
@@ -71,7 +72,7 @@ public class FileParseTools {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
         } finally {
             hiveFileEntity.setFileAddr(targetFile.getAbsolutePath().replace(project_path + "\\", ""));
             String[] pathSplit = targetFile.getAbsolutePath().split("\\\\");
@@ -117,7 +118,7 @@ public class FileParseTools {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
         } finally {
             shellEntity.setFileAddr(targetFile.getAbsolutePath().replace(project_path + "\\", ""));
             shellEntity.setFileName(targetFile.getName());
@@ -209,7 +210,7 @@ public class FileParseTools {
                 shellEntity.setStgTableName(target_database + "." + target_table);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
         } finally {
             shellEntity.setFileAddr(targetFile.getAbsolutePath().replace(project_path + "\\", ""));
             shellEntity.setFileName(targetFile.getName());
@@ -224,5 +225,39 @@ public class FileParseTools {
             shellEntity.setModifyTime(LocalDate.now().toString());
         }
         return shellEntity;
+    }
+
+    /**
+     * 解析 dchis,dcraw文件,去掉无法解析的行
+     * 特殊情况:
+     * 1.create unique index BIN$2Vi6FwEdexjgQBSBUA1Tag==$0 on CCK_RZ_TERR_OPERATE (ID);
+     * 特殊字符 $ 规避掉
+     * 2.  BY      VARCHAR2(200)
+     * 关键字 ,手动加上分号    `BY`      VARCHAR2(200)
+     *
+     * @param targetFile 文件
+     * @return 返回sql内容
+     */
+    public String clearOracleSpecialCharacters(File targetFile) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            FileReader fr = new FileReader(targetFile);
+            LineNumberReader lnr = new LineNumberReader(fr);
+            while (lnr.ready()) {
+                String line = lnr.readLine();
+                Pattern p = Pattern.compile("^(prompt).*|\\$");
+                Matcher matcher = p.matcher(line.trim());
+                if (!matcher.find() && line != null && !"\\".equalsIgnoreCase(line.trim()) && !"/".equalsIgnoreCase(line.trim())) {
+//                    if (!"/".equalsIgnoreCase(line.trim())) {
+                    stringBuilder.append(line).append("\n");
+//                    } else {
+//                        stringBuilder.append(";").append("\n");
+//                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
+        }
+        return stringBuilder.toString();
     }
 }
