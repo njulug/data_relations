@@ -84,45 +84,32 @@ public class SqlParserTools {
 //        System.out.println("targetTableSet = " + targetTableSet);
 //        System.out.println("targetTableSet.size() = " + targetTableSet.size());
 //        String sql = new FileParseTools().parseDchis(new File("C:\\Workspace\\ideaProject\\data_relations\\ORACLE\\dchis.sql"));
-        String sql = "CREATE OR REPLACE Procedure SP_I_OMS_HIS_BLOBFILE(I_JOB_NAME   In DCMETA.PKG_DCTYPE.DCVARCHAR128,\n" +
-                "                                                        I_INIT_DATE  In DCMETA.PKG_DCTYPE.DCDATE,\n" +
-                "                                                        I_BEGIN_DATE In DCMETA.PKG_DCTYPE.DCDATE,\n" +
-                "                                                        I_END_DATE   In DCMETA.PKG_DCTYPE.DCDATE)\n" +
-                "--============================================================================\n" +
-                "  --对象编号   :\n" +
-                "  --对象名称   : dcraw.hs08_his_blobfile\n" +
-                "  --对象标识   :\n" +
-                "  --创 建 人   : hzy\n" +
-                "  --创建日期   :\n" +
-                "  --功能描述   : 表dchis.oms_his_blobfile RAW to ODS 自动生成。\n" +
-                "  --修改说明   :\n" +
-                "  --============================================================================\n" +
-                " Is\n" +
-                "  V_SQLCODE     DCMETA.PKG_DCTYPE.DCNUM Default 0;\n" +
-                "  V_ERROR_MSG   DCMETA.PKG_DCTYPE.DCVARCHAR4000 Default ' ';\n" +
-                "  V_ERROR_LEVEL DCMETA.PKG_DCTYPE.DCTYPE Default '2'; --信息级别：'0'消息、'1'警告、'2'错误\n" +
-                "\n" +
-                "  V_JOB_NAME   DCMETA.PKG_DCTYPE.DCVARCHAR128 := NVL(I_JOB_NAME, ' ');\n" +
-                "  V_INIT_DATE  DCMETA.PKG_DCTYPE.DCNUM := NVL(I_INIT_DATE, 0);\n" +
-                "  V_BEGIN_DATE DCMETA.PKG_DCTYPE.DCDATE := NVL(I_BEGIN_DATE, 0);\n" +
-                "  V_END_DATE   DCMETA.PKG_DCTYPE.DCDATE := NVL(I_END_DATE, 0);\n" +
-                "Begin\n" +
-                "\n" +
-                "  Execute Immediate 'TRUNCATE TABLE  dchis.oms_his_blobfile';\n" +
-                "  Insert Into DCHIS.OMS_HIS_BLOBFILE\n" +
-                "    (OC_DATE, INIT_DATE, FILE_GUID, ORDINAL, BLOB_NO, DEAL_FLAG, FILE_OBJ, DATE_CLEAR, CHANGE_TIME, REMARK)\n" +
-                "    Select OC_DATE, INIT_DATE, FILE_GUID, ORDINAL, BLOB_NO, DEAL_FLAG, FILE_OBJ, DATE_CLEAR, Sysdate As CHANGE_TIME, REMARK REGISTER_DATE\n" +
-                "    \n" +
-                "      From DCRAW.HS08_HIS_BLOBFILE;\n" +
-                "  Commit;\n" +
-                "Exception\n" +
-                "  When Others Then\n" +
-                "    V_SQLCODE   := Sqlcode;\n" +
-                "    V_ERROR_MSG := Sqlerrm;\n" +
-                "    Rollback;\n" +
-                "    DCMETA.SP_WRITE_JOB_LOG(V_JOB_NAME, V_ERROR_LEVEL, V_SQLCODE || V_ERROR_MSG);\n" +
-                "    Raise;\n" +
-                "End SP_I_OMS_HIS_BLOBFILE;";
+        String sql = "SELECT\n" +
+                "   '${TradeDate.init_date}' as OC_DATE\n" +
+                ",  MEETING_ID\n" +
+                ", MEETING_TITLE\n" +
+                ", MEETING_CONTENT\n" +
+                ", START_TIME\n" +
+                ", END_TIME\n" +
+                ", REQUESTER\n" +
+                ", REQUEST_ORG\n" +
+                ", REQUEST_TIME\n" +
+                ", INST_ID\n" +
+                ", RECORD_STATUS\n" +
+                ", CURRENT_TASK_NAME\n" +
+                ", PROJECT_ID\n" +
+                ", VOTING_RESULT\n" +
+                ", CONCLUSION\n" +
+                ", MEETING_TYPE\n" +
+                ", CURRENT_DEAL_USER\n" +
+                ", PROJECT_BUSITYPE\n" +
+                ", REQUEST_TEAM\n" +
+                ", SEQ_NO\n" +
+                ", NOTICE_TIME\n" +
+                ", MEETING_CONCLUSION\n" +
+                ", MEETING_COMMENT\n" +
+                ", MEETING_SUMMARY\n" +
+                "FROM BIBUSER.T_FLOW_MEETING";
 //        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.SYBASE).getSourceTargetTables(sql, "");
 //        System.out.println("sourceTargetTables = " + sourceTargetTables);
 //        System.out.println(setJdbc(DataBaseConstant.SYBASE).getTableNameAndColumns(sql, ""));
@@ -146,7 +133,7 @@ public class SqlParserTools {
                 stmt.accept(visitor);
             }
         } catch (Exception e) {
-            log.error("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), dbType, absolutePath);
+            log.debug("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), dbType, absolutePath);
             try {
                 stmtList = SQLUtils.parseStatements(sql, JdbcConstants.HIVE);
                 for (SQLStatement stmt : stmtList) {
@@ -154,7 +141,7 @@ public class SqlParserTools {
                 }
             } catch (Exception exception) {
                 log.error("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), JdbcConstants.HIVE, absolutePath);
-//                log.error("sql:\n {}", sql);
+                log.debug("sql:\n {}", sql);
             }
         }
 

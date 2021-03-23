@@ -121,8 +121,8 @@ public class XmlTools {
                             }
                             break;
                         case "SQL":
-                            convertFormat(entry.elementText("sql"));
-                            Map<String, String> sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(convertFormat(entry.elementText("sql")), targetFile.getAbsolutePath());
+                            String sql = convertFormat(entry.elementText("sql")).replaceAll("[$|{}]","").replace("..",".");
+                            Map<String, String> sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, targetFile.getAbsolutePath());
 //                            这里解析出来是 (表名,targetTbale / sourceTbale) 反转一下
                             sourceTargetTables.forEach((key, value) -> kjbComponentMap.put(value, key.toLowerCase().trim()));
                             kjbComponentMap.put("sourceConnect", getConnect(entry.elementText("connection")));
@@ -323,6 +323,7 @@ public class XmlTools {
     private void switchKtrStepType(String stepType, Element step, Map<Object, Object> ktrComponentMap, String absolutePath) {
         Map<String, String> sourceTargetTables;
         Map<String, List<String>> tableNameAndWhereColumns;
+        String sql;
         switch (stepType) {
             case "JsonInput":
                 ktrComponentMap.put("sourceTable", "文件输入: " + step.element("file").elementText("name"));
@@ -340,7 +341,7 @@ public class XmlTools {
                 ktrComponentMap.put("sourceTable", "文件输入: " + step.element("file").elementText("name"));
                 break;
             case "TableInput":
-                String sql = convertFormat(step.elementText("sql")).replace("..",".");
+                sql = convertFormat(step.elementText("sql")).replaceAll("[$|{}]","").replace("..",".");
                 sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, absolutePath);
 //                            这里解析出来是 (表名,targetTbale / sourceTbale) 反转一下
                 sourceTargetTables.forEach((key, value) -> {
@@ -387,8 +388,20 @@ public class XmlTools {
                 ktrComponentMap.put("targetConnect", getConnect(step.elementText("connection")));
                 break;
             case "ExecSQL":
-                convertFormat(step.elementText("sql"));
-                sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(convertFormat(step.elementText("sql")), absolutePath);
+                sql = convertFormat(step.elementText("sql")).replaceAll("[$|{}]","").replace("..",".");
+//                if (!sql.contains("'${TradeDate.begin_date}'")) {
+//                    sql = sql.replace("${TradeDate.begin_date}", "'${TradeDate.begin_date}'");
+//                }
+//                if (!sql.contains("'${TradeDate.end_date}'")) {
+//                    sql = sql.replace("${TradeDate.end_date}", "'${TradeDate.end_date}'");
+//                }
+//                if (!sql.contains("'${TradeDate.init_date}'")) {
+//                    sql = sql.replace("${TradeDate.init_date}", "'${TradeDate.init_date}'");
+//                }
+//                if (!sql.contains("'${Val.table_owner}.${Val.table_prefix}${Val.table_name}'")) {
+//                    sql = sql.replace("${Val.table_owner}.${Val.table_prefix}${Val.table_name}", "'${Val.table_owner}.${Val.table_prefix}${Val.table_name}'");
+//                }
+                sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, absolutePath);
 //                            这里解析出来是 (表名,targetTbale / sourceTbale) 反转一下
                 sourceTargetTables.forEach((key, value) -> ktrComponentMap.put(value, key.toLowerCase().trim()));
 

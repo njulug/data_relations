@@ -49,7 +49,7 @@ public class SpringStartMain {
 //        parseController.parseOracleDchis();
 //        parseController.parseOracleDcraw();
 //        parseController.parseOracleDcrun();
-        parseController.parseOracleDcser();
+//        parseController.parseOracleDcser();
 //        parseController.parseSybaseProcedure();
 //        parseController.parseSybaseView();
 //        parseController.parseSrcToRaw();
