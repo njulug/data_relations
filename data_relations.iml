@@ -15,6 +15,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="library" name="Maven: org.mybatis:mybatis-spring:2.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:5.3.2" level="project" />
@@ -59,6 +60,5 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-1.2-api:2.13.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-slf4j-impl:2.13.1" level="project" />
-    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>

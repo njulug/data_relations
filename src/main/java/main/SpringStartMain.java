@@ -2,7 +2,6 @@ package main;
 
 import controller.ParseController;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.time.Duration;
@@ -15,13 +14,6 @@ import java.time.LocalDateTime;
  */
 @Slf4j
 public class SpringStartMain {
-    private static final ParseController parseController;
-
-    static {
-        String xmlPath = "applicationContext.xml";
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext(xmlPath);
-        parseController = applicationContext.getBean("parseController", ParseController.class);
-    }
 
     /**
      * 工作目录: C:\Workspace\ideaProject\data_relations
@@ -46,17 +38,20 @@ public class SpringStartMain {
      */
     public static void main(String[] args) {
         LocalDateTime startTime = LocalDateTime.now();
-//        parseController.parseOracleDchis();
-//        parseController.parseOracleDcraw();
-//        parseController.parseOracleDcrun();
-//        parseController.parseOracleDcser();
-//        parseController.parseSybaseProcedure();
-//        parseController.parseSybaseView();
-//        parseController.parseSrcToRaw();
-//        parseController.parseRawToOds();
-//        parseController.parseSrcToBigData();
-//        parseController.analysisService();
-//        parseController.exportResult();
+        String xmlPath = "applicationContext.xml";
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(xmlPath);
+        ParseController parseController = applicationContext.getBean("parseController", ParseController.class);
+        parseController.parseOracleDchis();
+        parseController.parseOracleDcraw();
+        parseController.parseOracleDcrun();
+        parseController.parseOracleDcser();
+        parseController.parseSybaseProcedure();
+        parseController.parseSybaseView();
+        parseController.parseSrcToRaw();
+        parseController.parseRawToOds();
+        parseController.parseSrcToBigData();
+        parseController.analysisService();
+        parseController.exportResult();
 
 //        List<ShellEntity> stgShellList = parseController.stgShellParse();
 //        List<ShellEntity> odsShellList = parseController.odsShellParse();
@@ -64,8 +59,8 @@ public class SpringStartMain {
 //        List<TableEntity> odsTableList = parseController.odsTableParse();
 //        List<AzkabanEntity> azkabanList = parseController.azkabanParse();
 //        List<HiveFileEntity> hiveFileList = parseController.hiveFileParse();
-
         log.info("总耗时 : {} 秒", Duration.between(startTime, LocalDateTime.now()).getSeconds());
+        applicationContext.close();
     }
 
 }

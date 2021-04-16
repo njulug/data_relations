@@ -11,7 +11,7 @@ public class CustomerContextHolder {
     public static final String SYBASE_SOURCE = "sybaseSource";
     public static final String MYSQL_SOURCE = "mysqlSource";
 //    用ThreadLocal来设置当前线程使用哪个dataSource
-    private static final ThreadLocal<String> contextHolder = new ThreadLocal<String>();
+    private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
     public static void setCustomerType(String customerType) {
         contextHolder.set(customerType);
     }

@@ -102,6 +102,8 @@ public class ParseController {
         procedureNameList.add("p_compare_test_hive_meta");
         procedureNameList.add("p_compare_source_hive_meta");
         procedureNameList.add("p_compare_ods_source_meta");
+//        元数据太大,分析完清掉几张大表
+        procedureNameList.add("p_truncate_meta_data");
         analysisService.execProcedure(procedureNameList);
         log.info("分析完成");
     }

@@ -80,7 +80,7 @@ public class AnalysisService {
                 sheetDataList.add(dataList);
             });
             writeSheet = EasyExcel.writerSheet(i++, viewName)
-//                    .head(sheetHeadList)
+//                    .head(sheetHeadList) // 表头
 //                    .registerWriteHandler(new FreezeAndFilter())
                     .build();
             excelWriter.write(sheetDataList, writeSheet);
