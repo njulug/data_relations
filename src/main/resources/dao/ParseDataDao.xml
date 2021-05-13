@@ -55,12 +55,12 @@
 
     <insert id="saveBatchShellDetail">
         INSERT INTO ${param1}
-        (file_addr,file_name,source_table_name,stg_table_name,filter_key,xtjc,jdbc_name,all_columns_count,parse_all_columns,all_columns,ods_table_name,create_time,modify_time)
+        (file_addr,file_name,source_table_name,stg_table_name,filter_key,xtjc,where_conditions,all_columns_count,parse_all_columns,all_columns,ods_table_name,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="shellList" separator=",">
             (#{shellList.fileAddr},#{shellList.fileName}, #{shellList.sourceTableName}, #{shellList.stgTableName},
             #{shellList.filterKey},
-            #{shellList.xtjc},#{shellList.jdbcName},#{shellList.allColumnsCount},
+            #{shellList.xtjc},#{shellList.whereConditions},#{shellList.allColumnsCount},
             #{shellList.parseAllColumns},#{shellList.allColumns},#{shellList.odsTableName},
             #{shellList.createTime}, #{shellList.modifyTime})
         </foreach>
@@ -115,10 +115,10 @@
 
     <insert id="saveBatchDchis">
         INSERT INTO ${param1}
-        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        (file_addr,file_name,create_name,table_type,table_name,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="dchisList" separator=",">
-            (#{dchisList.fileAddr},#{dchisList.fileName},
+            (#{dchisList.fileAddr},#{dchisList.fileName},#{dchisList.createName},
             #{dchisList.tableType},#{dchisList.tableName},
             #{dchisList.createTime}, #{dchisList.modifyTime})
         </foreach>
@@ -126,10 +126,10 @@
 
     <insert id="saveBatchDcraw">
         INSERT INTO ${param1}
-        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        (file_addr,file_name,create_name,table_type,table_name,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="dcrawList" separator=",">
-            (#{dcrawList.fileAddr},#{dcrawList.fileName},
+            (#{dcrawList.fileAddr},#{dcrawList.fileName},#{dcrawList.createName},
             #{dcrawList.tableType},#{dcrawList.tableName},
             #{dcrawList.createTime}, #{dcrawList.modifyTime})
         </foreach>
@@ -137,10 +137,10 @@
 
     <insert id="saveBatchDcrun">
         INSERT INTO ${param1}
-        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        (file_addr,file_name,create_name,table_type,table_name,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="dcrunList" separator=",">
-            (#{dcrunList.fileAddr},#{dcrunList.fileName},
+            (#{dcrunList.fileAddr},#{dcrunList.fileName},#{dcrunList.createName},
             #{dcrunList.tableType},#{dcrunList.tableName},
             #{dcrunList.createTime}, #{dcrunList.modifyTime})
         </foreach>
@@ -148,10 +148,10 @@
 
     <insert id="saveBatchDcser">
         INSERT INTO ${param1}
-        (file_addr,file_name,table_type,table_name,create_time,modify_time)
+        (file_addr,file_name,create_name,table_type,table_name,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="dcserList" separator=",">
-            (#{dcserList.fileAddr},#{dcserList.fileName},
+            (#{dcserList.fileAddr},#{dcserList.fileName},#{dcserList.createName},
             #{dcserList.tableType},#{dcserList.tableName},
             #{dcserList.createTime}, #{dcserList.modifyTime})
         </foreach>

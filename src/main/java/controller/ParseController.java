@@ -76,14 +76,12 @@ public class ParseController {
         List<ShellEntity> stgShellList = srcToBigDataParseService.stgShellParse();
 //        ods_shell 解析
         List<ShellEntity> odsShellList = srcToBigDataParseService.odsShellParse();
-//        azkaban 解析
-        List<AzkabanEntity> azkabanList = azkabanService.parse();
 //        ods_table 解析
         List<TableEntity> odsTableList = srcToBigDataParseService.odsTableParse();
 //        stg_table 解析
         List<TableEntity> stgTableList = srcToBigDataParseService.stgTableParse();
-//        整合: stg_shell,ods_shell,ods_table(表注释),azkaban,已在数据库操作,这张表可以忽略
-//        analysisService.mergeSrcToBigData(odsShellList, stgShellList, odsTableList, azkabanList);
+//        azkaban 解析
+        List<AzkabanEntity> azkabanList = azkabanService.parse();
     }
 
     @ResponseBody
@@ -95,15 +93,16 @@ public class ParseController {
         procedureNameList.add("p_compare_src_to_raw");
         procedureNameList.add("p_update_meta_data");
         procedureNameList.add("p_compare_azkaban_ods_stg_hive_file");
-        procedureNameList.add("p_compare_ods_stg_sql");
+        procedureNameList.add("p_compare_ods_sql_vs_stg_sql");
+        procedureNameList.add("p_compare_ods_sql_vs_hive_file");
+        procedureNameList.add("p_compare_ods_sql_vs_hive_meta_pro");
+        procedureNameList.add("p_compare_ods_sql_source_meta_pro");
         procedureNameList.add("p_compare_stg_sql_shell");
-        procedureNameList.add("p_compare_ods_hive_file");
-        procedureNameList.add("p_compare_ods_hive_meta");
-        procedureNameList.add("p_compare_test_hive_meta");
-        procedureNameList.add("p_compare_source_hive_meta");
-        procedureNameList.add("p_compare_ods_source_meta");
+        procedureNameList.add("p_compare_hive_meta_test_vs_hive_meta_pro");
+        procedureNameList.add("p_compare_source_meta_test_vs_source_meta_pro");
+        procedureNameList.add("p_compare_source_meta_pro_vs_hive_meta_pro");
 //        元数据太大,分析完清掉几张大表
-        procedureNameList.add("p_truncate_meta_data");
+//        procedureNameList.add("p_truncate_meta_data");
         analysisService.execProcedure(procedureNameList);
         log.info("分析完成");
     }
@@ -152,19 +151,19 @@ public class ParseController {
         viewNameList.add("stg_sql与stg_shell字段数不一致");
         viewNameList.add("stg_sql与stg_shell字段名不一致");
 
-        viewNameList.add("测试环境与生产环境表名不一致");
-        viewNameList.add("测试环境与生产环境字段数不一致");
-        viewNameList.add("测试环境与生产环境表注释不一致");
-        viewNameList.add("测试环境与生产环境字段名不一致");
-        viewNameList.add("测试环境与生产环境字段类型不一致");
-        viewNameList.add("测试环境与生产环境字段注释不一致");
+        viewNameList.add("测试环境hive元数据与生产环境hive元数据表名不一致");
+        viewNameList.add("测试环境hive元数据与生产环境hive元数据字段数不一致");
+        viewNameList.add("测试环境hive元数据与生产环境hive元数据表注释不一致");
+        viewNameList.add("测试环境hive元数据与生产环境hive元数据字段名不一致");
+        viewNameList.add("测试环境hive元数据与生产环境hive元数据字段类型不一致");
+        viewNameList.add("测试环境hive元数据与生产环境hive元数据字段注释不一致");
 
-        viewNameList.add("生产环境与源表元数据表名不一致");
-        viewNameList.add("生产环境与源表元数据表字段数不一致");
-        viewNameList.add("生产环境与源表元数据表注释不一致");
-        viewNameList.add("生产环境与源表元数据表字段名不一致");
-        viewNameList.add("生产环境与源表元数据表字段类型不一致");
-        viewNameList.add("生产环境与源表元数据表字段注释不一致");
+        viewNameList.add("生产源表元数据和stg_shell源表表名不一致");
+        viewNameList.add("生产源表元数据和stg_shell源表表字段数不一致");
+        viewNameList.add("生产源表元数据和stg_shell源表表注释不一致");
+        viewNameList.add("生产源表元数据和stg_shell源表表字段名不一致");
+        viewNameList.add("生产源表元数据和stg_shell源表表字段类型不一致");
+        viewNameList.add("生产源表元数据和stg_shell源表表字段注释不一致");
         analysisService.exportResult(viewNameList);
     }
 

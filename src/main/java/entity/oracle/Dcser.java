@@ -14,11 +14,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dcser {
+public class Dcser implements Cloneable {
     @ExcelProperty("文件路径")
     private String fileAddr;
     @ExcelProperty("文件名")
     private String fileName;
+    @ExcelProperty("sql创建名")
+    private String createName;
     @ExcelProperty("表类型")
     private String tableType;
     @ExcelProperty("表名")
@@ -27,4 +29,9 @@ public class Dcser {
     String createTime;
     @ExcelIgnore
     String modifyTime;
+
+    @Override
+    public Dcser clone() throws CloneNotSupportedException {
+        return (Dcser) super.clone();
+    }
 }

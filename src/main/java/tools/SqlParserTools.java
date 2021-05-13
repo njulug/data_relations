@@ -6,6 +6,8 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.hive.visitor.HiveSchemaStatVisitor;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
+import com.alibaba.druid.sql.dialect.oracle.ast.stmt.OracleCreateTableStatement;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 public class SqlParserTools {
+    private final String projectPath = System.getProperty("user.dir");
     private static SchemaStatVisitor visitor = null;
     private static DbType dbType = null;
     private static final TGSqlParser sqlParser = new TGSqlParser(EDbVendor.dbvsybase);
@@ -50,7 +53,7 @@ public class SqlParserTools {
         return sqlParserTools;
     }
 
-    public static SqlParserTools setJdbc(DataBaseConstant dataBaseConstant) {
+    public SqlParserTools setJdbc(DataBaseConstant dataBaseConstant) {
         switch (dataBaseConstant) {
             case HIVE:
                 visitor = new HiveSchemaStatVisitor();
@@ -61,7 +64,7 @@ public class SqlParserTools {
                 dbType = JdbcConstants.ORACLE;
                 break;
             case MYSQL:
-                visitor = new OracleSchemaStatVisitor();
+                visitor = new MySqlSchemaStatVisitor();
                 dbType = JdbcConstants.MYSQL;
                 break;
             case SYBASE:
@@ -74,48 +77,72 @@ public class SqlParserTools {
 
     @Test
     public void test() {
-//        File file = new File("C:\\Workspace\\ideaProject\\data_relations\\PROCEDURE\\dba_p_cust_entst_use_tern.sql");
-//        FileTools fileTools = new FileTools();
-//        Set<String> sourceTableSet = new HashSet<>();
-//        Set<String> targetTableSet = new HashSet<>();
-//        parseSybaseProcedureTables(fileTools.removeCursorsAndKeywords(fileTools.readToBuffer(file)), sourceTableSet, targetTableSet, "");
-//        System.out.println("sourceTableSet = " + sourceTableSet);
-//        System.out.println("sourceTableSet.size() = " + sourceTableSet.size());
-//        System.out.println("targetTableSet = " + targetTableSet);
-//        System.out.println("targetTableSet.size() = " + targetTableSet.size());
-//        String sql = new FileParseTools().parseDchis(new File("C:\\Workspace\\ideaProject\\data_relations\\ORACLE\\dchis.sql"));
-        String sql = "SELECT\n" +
-                "   '${TradeDate.init_date}' as OC_DATE\n" +
-                ",  MEETING_ID\n" +
-                ", MEETING_TITLE\n" +
-                ", MEETING_CONTENT\n" +
-                ", START_TIME\n" +
-                ", END_TIME\n" +
-                ", REQUESTER\n" +
-                ", REQUEST_ORG\n" +
-                ", REQUEST_TIME\n" +
-                ", INST_ID\n" +
-                ", RECORD_STATUS\n" +
-                ", CURRENT_TASK_NAME\n" +
-                ", PROJECT_ID\n" +
-                ", VOTING_RESULT\n" +
-                ", CONCLUSION\n" +
-                ", MEETING_TYPE\n" +
-                ", CURRENT_DEAL_USER\n" +
-                ", PROJECT_BUSITYPE\n" +
-                ", REQUEST_TEAM\n" +
-                ", SEQ_NO\n" +
-                ", NOTICE_TIME\n" +
-                ", MEETING_CONCLUSION\n" +
-                ", MEETING_COMMENT\n" +
-                ", MEETING_SUMMARY\n" +
-                "FROM BIBUSER.T_FLOW_MEETING";
-//        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.SYBASE).getSourceTargetTables(sql, "");
-//        System.out.println("sourceTargetTables = " + sourceTargetTables);
-//        System.out.println(setJdbc(DataBaseConstant.SYBASE).getTableNameAndColumns(sql, ""));
-        System.out.println(setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, ""));
-//        System.out.println(setJdbc(DataBaseConstant.ORACLE).getAllColumns(sql, ""));
-//        System.out.println(setJdbc(DataBaseConstant.HIVE).getFieldsDetail(sql, ""));
+        File dchisFile = new File(projectPath + "\\ORACLE\\dchis.sql");
+        FileParseTools fileParseTools = new FileParseTools(new SqlParserTools());
+//        String sql = fileParseTools.clearOracleSpecialCharacters(dchisFile);
+        String sql = "Select INIT_DATE ||B.CLIENT_ID || '1' As ID,\n" +
+                "       FUND_ACCOUNT As CAPITALACCOUNT,\n" +
+                "       B.CLIENT_ID As CLIENTID,\n" +
+                "       1 As RANKTYPE,\n" +
+                "       TOTAL_RANK_D As RANK,\n" +
+                "       TOTAL_SCORE_D As COMPOSITERANK,\n" +
+                "       YIELD_D As EARINGS,\n" +
+                "       YIELDRATE_D As EARINGSRATE,\n" +
+                "       INIT_DATE As RANKDATE\n" +
+                "  From DCRUN.T_SMC_CLIENT A, DCRUN.T_SMC_RANKING_REAL B\n" +
+                " Where INIT_DATE = CDATE\n" +
+                "       And A.CLIENT_ID = B.CLIENT_ID";
+//        List<Map<String, String>> oracleProcedureSourceTargetTables = setJdbc(DataBaseConstant.ORACLE).getCreateSourceTargetTables(sql, "");
+//        System.out.println("oracleProcedureSourceTargetTables = " + oracleProcedureSourceTargetTables);
+        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.ORACLE).getSimpleSourceTargetTables(sql, dchisFile.getAbsolutePath());
+        System.out.println("sourceTargetTables = " + sourceTargetTables);
+    }
+
+    /**
+     * 获取创建语句的源表,目标表,包含创建的名字,例如 存过名,视图名
+     * @param sql sql
+     * @param absolutePath sql 路径
+     * @return 返回结果
+     */
+    public List<Map<String, String>> getCreateSourceTargetTables(String sql, String absolutePath) {
+        List<Map<String, String>> returnList = new ArrayList<>();
+        List<SQLStatement> stmtList;
+        try {
+            stmtList = SQLUtils.parseStatements(sql, dbType);
+            for (SQLStatement stmt : stmtList) {
+                Map<String, String> singleMap = new HashMap<>();
+                if (stmt instanceof SQLCreateProcedureStatement) {
+                    SQLCreateProcedureStatement stmt1 = (SQLCreateProcedureStatement) stmt;
+                    singleMap.put("createName", stmt1.getName().getSimpleName().toLowerCase().trim());
+                } else if (stmt instanceof OracleCreateTableStatement) {
+                    OracleCreateTableStatement stmt1 = (OracleCreateTableStatement) stmt;
+                    singleMap.put("createName", stmt1.getName().getSimpleName().toLowerCase().trim());
+                } else if (stmt instanceof SQLCreateViewStatement) {
+                    SQLCreateViewStatement stmt1 = (SQLCreateViewStatement) stmt;
+                    singleMap.put("createName", stmt1.getName().getSimpleName().toLowerCase().trim());
+                } else {
+                    continue;
+                }
+                stmt.accept(visitor);
+                Map<TableStat.Name, TableStat> visitorTables = visitor.getTables();
+                log.debug("sql解析出的table列表: {}", visitorTables);
+                Set<TableStat.Name> names = visitorTables.keySet();
+                for (TableStat.Name name : visitorTables.keySet()) {
+                    String tableName = name.getName().toLowerCase().trim();
+                    String tableType = visitorTables.get(name).toString().toLowerCase().trim();
+                    if (tableType.contains("select")) {
+                        singleMap.put(tableName, "sourceTable");
+                    } else {
+                        singleMap.put(tableName, "targetTable");
+                    }
+                }
+                returnList.add(singleMap);
+                visitor = new OracleSchemaStatVisitor();
+            }
+        } catch (Exception e) {
+            log.error("sql 解析失败: {}, 解析类型: {}, 路径: {}, sql: \n{}", e.getMessage(), dbType, absolutePath, sql);
+        }
+        return returnList;
     }
 
     /**
@@ -125,7 +152,7 @@ public class SqlParserTools {
      * @param absolutePath sql 的路径
      * @return 返回 (源表,目标表)
      */
-    public Map<String, String> getSourceTargetTables(String sql, String absolutePath) {
+    public Map<String, String> getSimpleSourceTargetTables(String sql, String absolutePath) {
         List<SQLStatement> stmtList;
         try {
             stmtList = SQLUtils.parseStatements(sql, dbType);
@@ -133,15 +160,14 @@ public class SqlParserTools {
                 stmt.accept(visitor);
             }
         } catch (Exception e) {
-            log.debug("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), dbType, absolutePath);
+            log.debug("sql 解析失败: {} ,解析类型: {} , 路径: {} ,sql: \n{}", e.getMessage(), dbType, absolutePath,sql);
             try {
                 stmtList = SQLUtils.parseStatements(sql, JdbcConstants.HIVE);
                 for (SQLStatement stmt : stmtList) {
                     stmt.accept(visitor);
                 }
             } catch (Exception exception) {
-                log.error("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), JdbcConstants.HIVE, absolutePath);
-                log.debug("sql:\n {}", sql);
+                log.error("sql 解析失败: {} ,解析类型: {} , 路径: {} ,sql: \n{}", e.getMessage(), JdbcConstants.HIVE, absolutePath,sql);
             }
         }
 

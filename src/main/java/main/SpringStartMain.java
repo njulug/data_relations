@@ -41,15 +41,26 @@ public class SpringStartMain {
         String xmlPath = "applicationContext.xml";
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(xmlPath);
         ParseController parseController = applicationContext.getBean("parseController", ParseController.class);
-        parseController.parseOracleDchis();
-        parseController.parseOracleDcraw();
-        parseController.parseOracleDcrun();
-        parseController.parseOracleDcser();
-        parseController.parseSybaseProcedure();
-        parseController.parseSybaseView();
-        parseController.parseSrcToRaw();
-        parseController.parseRawToOds();
-        parseController.parseSrcToBigData();
+
+//        if (args == null || args.length == 0) {
+//            log.error("请提供参数,目前可用参数列表: oracle");
+//            System.exit(-1);
+//        } else if ("oracle".equalsIgnoreCase(args[0])) {
+//            parseController.parseOracleDchis();
+//        } else {
+//            log.error("参数错误: {}, 目前可用参数列表: oracle", args[0]);
+//            System.exit(-1);
+//        }
+
+//        parseController.parseOracleDchis();
+//        parseController.parseOracleDcraw();
+//        parseController.parseOracleDcrun();
+//        parseController.parseOracleDcser();
+//        parseController.parseSybaseProcedure();
+//        parseController.parseSybaseView();
+//        parseController.parseSrcToRaw();
+//        parseController.parseRawToOds();
+//        parseController.parseSrcToBigData();
         parseController.analysisService();
         parseController.exportResult();
 
@@ -59,7 +70,8 @@ public class SpringStartMain {
 //        List<TableEntity> odsTableList = parseController.odsTableParse();
 //        List<AzkabanEntity> azkabanList = parseController.azkabanParse();
 //        List<HiveFileEntity> hiveFileList = parseController.hiveFileParse();
-        log.info("总耗时 : {} 秒", Duration.between(startTime, LocalDateTime.now()).getSeconds());
+        long timeComsumer = Duration.between(startTime, LocalDateTime.now()).getSeconds();
+        log.info("总耗时 : {} 秒, 约 {} 分钟", timeComsumer, timeComsumer / 60);
         applicationContext.close();
     }
 

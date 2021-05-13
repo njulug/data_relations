@@ -5,6 +5,7 @@ import entity.src_to_bigdata.HiveFileEntity;
 import entity.src_to_bigdata.ShellEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -20,7 +21,13 @@ import java.util.regex.Pattern;
 @Slf4j
 @Repository
 public class FileParseTools {
-    private final String project_path = System.getProperty("user.dir");
+    private final String projectPath = System.getProperty("user.dir");
+    private final SqlParserTools sqlParserTools;
+
+    @Autowired
+    public FileParseTools(SqlParserTools sqlParserTools) {
+        this.sqlParserTools = sqlParserTools;
+    }
 
     @Test
     public void test() {
@@ -74,7 +81,7 @@ public class FileParseTools {
         } catch (Exception e) {
             log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
         } finally {
-            hiveFileEntity.setFileAddr(targetFile.getAbsolutePath().replace(project_path + "\\", ""));
+            hiveFileEntity.setFileAddr(targetFile.getAbsolutePath().replace(projectPath + "\\", ""));
             String[] pathSplit = targetFile.getAbsolutePath().split("\\\\");
             hiveFileEntity.setFileName(pathSplit[pathSplit.length - 1].trim());
             hiveFileEntity.setOdsTableName(hive_database + "." + hive_table);
@@ -120,7 +127,7 @@ public class FileParseTools {
         } catch (Exception e) {
             log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
         } finally {
-            shellEntity.setFileAddr(targetFile.getAbsolutePath().replace(project_path + "\\", ""));
+            shellEntity.setFileAddr(targetFile.getAbsolutePath().replace(projectPath + "\\", ""));
             shellEntity.setFileName(targetFile.getName());
             shellEntity.setStgTableName(hive_database_stg + "." + hive_table_stg);
             shellEntity.setOdsTableName(hive_database_ods + "." + hive_table_ods);
@@ -148,7 +155,7 @@ public class FileParseTools {
         int all_columns_count = 0;
         String parse_all_columns = "";
         String target_database = "";
-        String jdbc_string = "";
+        String where_conditions = "";
         String xtjc = "";
         try {
             FileReader fr = new FileReader(targetFile);
@@ -161,18 +168,20 @@ public class FileParseTools {
                     target_database = line.toLowerCase().replace("hive_database=", "");
                 } else if (line.toLowerCase().contains("hive_table=")) {
                     target_table = line.toLowerCase().replace("hive_table=", "");
-                } else if (line.toLowerCase().contains("jdbc_string=")) {
-//                    有2行的清空,如果有了就不判断第2次了
-                    if (jdbc_string == null | "".equalsIgnoreCase(jdbc_string)) {
-                        jdbc_string = line.toLowerCase().replace("jdbc_string=", "");
-                        String pattern = "(/.*(/!))";
-                        Pattern p = Pattern.compile(pattern);
-                        Matcher matcher = p.matcher(jdbc_string);
-                        if (matcher.find()) {
-                            jdbc_string = matcher.group().replaceAll("/|\\^|=|!", "");
-                            log.debug("jdbc_string: {}", jdbc_string);
-                        }
-                    }
+//                } else if (line.toLowerCase().contains("where_conditions=")) {
+////                    有2行的清空,如果有了就不判断第2次了
+//                    if (where_conditions == null | "".equalsIgnoreCase(where_conditions)) {
+//                        where_conditions = line.toLowerCase().replace("where_conditions=", "");
+//                        String pattern = "(/.*(/!))";
+//                        Pattern p = Pattern.compile(pattern);
+//                        Matcher matcher = p.matcher(where_conditions);
+//                        if (matcher.find()) {
+//                            where_conditions = matcher.group().replaceAll("/|\\^|=|!", "");
+//                            log.debug("where_conditions: {}", where_conditions);
+//                        }
+//                    }
+                } else if (line.toLowerCase().contains("where_conditions=")) {
+                    where_conditions = line.toLowerCase().replace("where_conditions=", "").replace("\"", "");
                 } else if (line.toLowerCase().contains("source_db_username=")) {
 //                    有2行的清空,如果有了就不判断第2次了
                     if (xtjc == null | "".equalsIgnoreCase(xtjc)) {
@@ -197,7 +206,7 @@ public class FileParseTools {
                             .replaceAll("\"|\\\\", "")
                             .replaceAll("( +,)|(, +)", ",");
                     all_columns_count = all_columns.split(",").length;
-                    parse_all_columns = SqlParserTools.setJdbc(DataBaseConstant.ORACLE)
+                    parse_all_columns = sqlParserTools.setJdbc(DataBaseConstant.ORACLE)
                             .getAllColumns("select " + all_columns + " from test;", targetFile.getAbsolutePath())
                             .toString().replaceAll("\\[|\\]| +", "");
                 }
@@ -212,11 +221,11 @@ public class FileParseTools {
         } catch (Exception e) {
             log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
         } finally {
-            shellEntity.setFileAddr(targetFile.getAbsolutePath().replace(project_path + "\\", ""));
+            shellEntity.setFileAddr(targetFile.getAbsolutePath().replace(projectPath + "\\", ""));
             shellEntity.setFileName(targetFile.getName());
             shellEntity.setSourceTableName(source_table);
             shellEntity.setFilterKey(filter_key);
-            shellEntity.setJdbcName(jdbc_string);
+            shellEntity.setWhereConditions(where_conditions);
             shellEntity.setXtjc(xtjc);
             shellEntity.setAllColumns(all_columns);
             shellEntity.setAllColumnsCount(all_columns_count);
@@ -245,6 +254,7 @@ public class FileParseTools {
             LineNumberReader lnr = new LineNumberReader(fr);
             while (lnr.ready()) {
                 String line = lnr.readLine();
+//                Pattern p = Pattern.compile("^(prompt).*|\\$");
                 Pattern p = Pattern.compile("^(prompt).*|\\$");
                 Matcher matcher = p.matcher(line.trim());
                 if (!matcher.find() && line != null && !"\\".equalsIgnoreCase(line.trim()) && !"/".equalsIgnoreCase(line.trim())) {

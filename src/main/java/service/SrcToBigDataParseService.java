@@ -33,12 +33,14 @@ public class SrcToBigDataParseService {
     private final MySQLDao mySQLDao;
     private final FileTools fileTools;
     private final FileParseTools fileParseTools;
+    private final SqlParserTools sqlParserTools;
 
     @Autowired
-    public SrcToBigDataParseService(MySQLDao mySQLDao, FileTools fileTools, FileParseTools fileParseTools) {
+    public SrcToBigDataParseService(MySQLDao mySQLDao, FileTools fileTools, FileParseTools fileParseTools,SqlParserTools sqlParserTools) {
         this.mySQLDao = mySQLDao;
         this.fileTools = fileTools;
         this.fileParseTools = fileParseTools;
+        this.sqlParserTools = sqlParserTools;
     }
 
     public List<TableEntity> odsTableParse() {
@@ -93,13 +95,13 @@ public class SrcToBigDataParseService {
         List<File> targetFileList = fileTools.matchTargetFiles(projectPath, "src_to_bigdata", parseType, ".sh");
         log.info("匹配到 {} 文件个数: {}", parseType, targetFileList.size());
         List<ShellEntity> fileContext = new ArrayList<>();
-        mySQLDao.truncateTable(parseType + "_detail_20210310");
+        mySQLDao.truncateTable(parseType + "_detail");
         for (File targetFile : targetFileList) {
             log.debug("开始解析文件: {}", targetFile);
             fileContext.add(fileParseTools.parseShell(parseType, targetFile));
         }
         log.info("明细信息,开始存入数据库");
-        mySQLDao.saveBatchShellDetail(parseType + "_detail_20210310", fileContext);
+        mySQLDao.saveBatchShellDetail(parseType + "_detail", fileContext);
 //        excelTools.writeExcel(ShellEntity.class, project_path + File.separator + parseType + "结果.xlsx", fileContext);
         EasyExcel.write(projectPath + File.separator + parseType + "结果.xlsx", ShellEntity.class).sheet(parseType + "结果").doWrite(fileContext);
         log.info("解析完成, {} 共解析: {} 个, {} 行", parseType, targetFileList.size(), fileContext.size());
@@ -118,14 +120,14 @@ public class SrcToBigDataParseService {
         log.info("匹配到 {} 文件个数: {}", parseType, targetFileList.size());
         List<TableEntity> fileContext = new ArrayList<>();
 //        解析前先清空 mysql 表
-        mySQLDao.truncateTable(parseType + "_detail_20210310");
+        mySQLDao.truncateTable(parseType + "_detail");
 //        3.一次性插入
         log.info("表字段明细信息,开始存入数据库");
         for (File targetFile : targetFileList) {
             log.debug("开始解析文件: {}", targetFile);
             String sql = fileTools.readToBuffer(targetFile);
 //            Map<String, String> tableNameAndComment = SqlParserTools.setJdbc(Constant.HIVE).getTableNameAndComment(sql, targetFile);
-            List<Map<String, String>> fieldsDetailList = SqlParserTools.setJdbc(DataBaseConstant.HIVE).getFieldsDetail(sql, targetFile.getAbsolutePath());
+            List<Map<String, String>> fieldsDetailList = sqlParserTools.setJdbc(DataBaseConstant.HIVE).getFieldsDetail(sql, targetFile.getAbsolutePath());
 //            2.一张表插入一次
 //            List<TableDetailEntity> dataList = new ArrayList<>();
             for (Map<String, String> fieldsDetaiMap : fieldsDetailList) {
@@ -151,7 +153,7 @@ public class SrcToBigDataParseService {
 //            3.一次性插入,数据库设置上限了.
         for (int i = fileContext.size(); i > 0; i -= 10000) {
 //            注意这里 sublist 是 [,)
-            mySQLDao.saveBatchTableDetail(parseType + "_detail_20210310", fileContext.subList((i - 10000) < 0 ? 0 : i - 10000, i));
+            mySQLDao.saveBatchTableDetail(parseType + "_detail", fileContext.subList((i - 10000) < 0 ? 0 : i - 10000, i));
         }
         log.info("表字段明细信息,开始存入excel");
         EasyExcel.write(projectPath + File.separator + parseType + "结果.xlsx", TableEntity.class).sheet(parseType + "结果").doWrite(fileContext);

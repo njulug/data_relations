@@ -30,12 +30,14 @@ public class SybaseService {
     private final FileTools fileTools;
     private final MySQLDao mySQLDao;
     private final SybaseDao sybaseDao;
+    private final SqlParserTools sqlParserTools;
 
     @Autowired
-    public SybaseService(SybaseDao sybaseDao, MySQLDao mySQLDao, FileTools fileTools) {
+    public SybaseService(SybaseDao sybaseDao, MySQLDao mySQLDao, FileTools fileTools,SqlParserTools sqlParserTools) {
         this.fileTools = fileTools;
         this.mySQLDao = mySQLDao;
         this.sybaseDao = sybaseDao;
+        this.sqlParserTools = sqlParserTools;
     }
 
     /**
@@ -56,7 +58,7 @@ public class SybaseService {
                     String viewDetail = view.getOrDefault("view_def", "未获取到视图内容");
                     String fileName = userName + "_" + viewName + ".sql";
                     fileTools.WriteStringToFile(targetWriteDir, fileName, viewDetail);
-                    Map<String, String> sourceTargetTableMap = SqlParserTools.setJdbc(DataBaseConstant.SYBASE).getSourceTargetTables(viewDetail, "");
+                    Map<String, String> sourceTargetTableMap = sqlParserTools.setJdbc(DataBaseConstant.SYBASE).getSimpleSourceTargetTables(viewDetail, "");
                     sourceTargetTableMap.forEach((key, value) -> {
                         ViewEntity viewEntity = new ViewEntity();
                         viewEntity.setFileAddr("SYBASE\\VIEW\\" + fileName);

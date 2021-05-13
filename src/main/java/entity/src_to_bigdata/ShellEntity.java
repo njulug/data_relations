@@ -27,8 +27,8 @@ public class ShellEntity {
     private String filterKey;
     @ExcelProperty("系统检查")
     private String xtjc;
-    @ExcelProperty("jdbc名")
-    private String jdbcName;
+    @ExcelProperty("where条件")
+    private String whereConditions;
     @ExcelProperty("原始所有字段个数")
     private int allColumnsCount;
     @ExcelProperty("解析后所有字段名")

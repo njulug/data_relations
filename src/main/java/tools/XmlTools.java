@@ -29,10 +29,12 @@ import java.util.stream.Collectors;
 public class XmlTools {
     private final JsonTools jsonTools;
     private static Element root;
+    private SqlParserTools sqlParserTools;
 
     @Autowired
-    public XmlTools(JsonTools jsonTools) {
+    public XmlTools(JsonTools jsonTools,SqlParserTools sqlParserTools) {
         this.jsonTools = jsonTools;
+        this.sqlParserTools = sqlParserTools;
     }
 
     @Test
@@ -122,7 +124,7 @@ public class XmlTools {
                             break;
                         case "SQL":
                             String sql = convertFormat(entry.elementText("sql")).replaceAll("[$|{}]","").replace("..",".");
-                            Map<String, String> sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, targetFile.getAbsolutePath());
+                            Map<String, String> sourceTargetTables = sqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSimpleSourceTargetTables(sql, targetFile.getAbsolutePath());
 //                            这里解析出来是 (表名,targetTbale / sourceTbale) 反转一下
                             sourceTargetTables.forEach((key, value) -> kjbComponentMap.put(value, key.toLowerCase().trim()));
                             kjbComponentMap.put("sourceConnect", getConnect(entry.elementText("connection")));
@@ -341,15 +343,15 @@ public class XmlTools {
                 ktrComponentMap.put("sourceTable", "文件输入: " + step.element("file").elementText("name"));
                 break;
             case "TableInput":
-                sql = convertFormat(step.elementText("sql")).replaceAll("[$|{}]","").replace("..",".");
-                sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, absolutePath);
+                sql = convertFormat(step.elementText("sql")).replaceAll("[${}.]","").replace("..",".");
+                sourceTargetTables = sqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSimpleSourceTargetTables(sql, absolutePath);
 //                            这里解析出来是 (表名,targetTbale / sourceTbale) 反转一下
                 sourceTargetTables.forEach((key, value) -> {
                     if (value.equalsIgnoreCase("sourceTable")) {
                         ktrComponentMap.put(value, key.toLowerCase().trim());
                     }
                 });
-                tableNameAndWhereColumns = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getTableNameAndWhereColumns(convertFormat(step.elementText("sql")).replaceAll("[\\$|{}]", ""), absolutePath);
+                tableNameAndWhereColumns = sqlParserTools.setJdbc(DataBaseConstant.ORACLE).getTableNameAndWhereColumns(convertFormat(step.elementText("sql")).replaceAll("[\\$|{}]", ""), absolutePath);
                 if (tableNameAndWhereColumns != null && tableNameAndWhereColumns.size() > 0) {
                     tableNameAndWhereColumns.forEach((key, value) -> {
 //                        ${begin_date} 这样的因为没加引号无法解析,所以去成了 begin_date ,解析出来是 [unknown,begin_date] 但这是参数要排除掉
@@ -388,7 +390,7 @@ public class XmlTools {
                 ktrComponentMap.put("targetConnect", getConnect(step.elementText("connection")));
                 break;
             case "ExecSQL":
-                sql = convertFormat(step.elementText("sql")).replaceAll("[$|{}]","").replace("..",".");
+                sql = convertFormat(step.elementText("sql")).replaceAll("[${}.]","").replace("..",".");
 //                if (!sql.contains("'${TradeDate.begin_date}'")) {
 //                    sql = sql.replace("${TradeDate.begin_date}", "'${TradeDate.begin_date}'");
 //                }
@@ -401,13 +403,13 @@ public class XmlTools {
 //                if (!sql.contains("'${Val.table_owner}.${Val.table_prefix}${Val.table_name}'")) {
 //                    sql = sql.replace("${Val.table_owner}.${Val.table_prefix}${Val.table_name}", "'${Val.table_owner}.${Val.table_prefix}${Val.table_name}'");
 //                }
-                sourceTargetTables = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSourceTargetTables(sql, absolutePath);
+                sourceTargetTables = sqlParserTools.setJdbc(DataBaseConstant.ORACLE).getSimpleSourceTargetTables(sql, absolutePath);
 //                            这里解析出来是 (表名,targetTbale / sourceTbale) 反转一下
                 sourceTargetTables.forEach((key, value) -> ktrComponentMap.put(value, key.toLowerCase().trim()));
 
                 ktrComponentMap.put("sourceConnect", getConnect(step.elementText("connection")));
                 ktrComponentMap.put("targetConnect", getConnect(step.elementText("connection")));
-                tableNameAndWhereColumns = SqlParserTools.setJdbc(DataBaseConstant.ORACLE).getTableNameAndWhereColumns(convertFormat(step.elementText("sql")).replaceAll("[\\$|{}]", ""), absolutePath);
+                tableNameAndWhereColumns = sqlParserTools.setJdbc(DataBaseConstant.ORACLE).getTableNameAndWhereColumns(convertFormat(step.elementText("sql")).replaceAll("[\\$|{}]", ""), absolutePath);
                 if (tableNameAndWhereColumns != null && tableNameAndWhereColumns.size() > 0) {
                     tableNameAndWhereColumns.forEach((key, value) -> {
 //                        ${begin_date} 这样的因为没加引号无法解析,所以去成了 begin_date ,解析出来是 [unknown,begin_date] 但这是参数要排除掉

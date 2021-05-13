@@ -14,11 +14,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dcraw {
+public class Dcraw implements Cloneable {
     @ExcelProperty("文件路径")
     private String fileAddr;
     @ExcelProperty("文件名")
     private String fileName;
+    @ExcelProperty("sql创建名")
+    private String createName;
     @ExcelProperty("表类型")
     private String tableType;
     @ExcelProperty("表名")
@@ -27,4 +29,9 @@ public class Dcraw {
     String createTime;
     @ExcelIgnore
     String modifyTime;
+
+    @Override
+    public Dcraw clone() throws CloneNotSupportedException {
+        return (Dcraw) super.clone();
+    }
 }
