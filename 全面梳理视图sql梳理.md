@@ -1,7 +1,7 @@
 # 源数据中所有的系统简称
 ```sql
 select distinct 
-	lower(substring(dmod_en_name,1,locate('.',dmod_en_name)-1)) as '系统简称' 
+	lower(substring_index(table_name,'.',1)) as '系统简称' 
 from source_meta_tables_detail 
 order by '系统简称'
 ;

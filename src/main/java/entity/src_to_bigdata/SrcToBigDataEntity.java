@@ -2,9 +2,7 @@ package entity.src_to_bigdata;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Author:BYDylan
@@ -12,8 +10,6 @@ import lombok.NoArgsConstructor;
  * Description:整合 stg_shell 和 ods_shell 解析结果
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class SrcToBigDataEntity {
     @ExcelProperty("stg文件名")
     private String stgFileName;

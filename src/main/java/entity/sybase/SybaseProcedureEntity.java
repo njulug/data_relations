@@ -2,9 +2,7 @@ package entity.sybase;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Author:BYDylan
@@ -12,9 +10,7 @@ import lombok.NoArgsConstructor;
  * Description:
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProcedureEntity {
+public class SybaseProcedureEntity {
     @ExcelProperty("文件路径")
     private String fileAddr;
     @ExcelProperty("文件名")

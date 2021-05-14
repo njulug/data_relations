@@ -43,7 +43,8 @@ public class AnalysisService {
             startTime = LocalDateTime.now();
             log.info("执行存过: {}", procedureName);
             analysisDao.callProcedure(procedureName);
-            log.info("耗时 : {} 秒", Duration.between(startTime, LocalDateTime.now()).getSeconds());
+            long timeComsumer = Duration.between(startTime, LocalDateTime.now()).getSeconds();
+            log.info("耗时 : {} 秒, 约 {} 分钟", timeComsumer, timeComsumer / 60);
         }
     }
 

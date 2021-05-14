@@ -96,7 +96,7 @@ public class ParseController {
         procedureNameList.add("p_compare_ods_sql_vs_stg_sql");
         procedureNameList.add("p_compare_ods_sql_vs_hive_file");
         procedureNameList.add("p_compare_ods_sql_vs_hive_meta_pro");
-        procedureNameList.add("p_compare_ods_sql_source_meta_pro");
+        procedureNameList.add("p_compare_ods_sql_vs_source_meta_pro");
         procedureNameList.add("p_compare_stg_sql_shell");
         procedureNameList.add("p_compare_hive_meta_test_vs_hive_meta_pro");
         procedureNameList.add("p_compare_source_meta_test_vs_source_meta_pro");

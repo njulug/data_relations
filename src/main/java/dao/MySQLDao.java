@@ -8,8 +8,8 @@ import entity.oracle.Dcser;
 import entity.raw_to_ods.RawToOdsEntity;
 import entity.src_to_bigdata.*;
 import entity.src_to_raw.SrcToRawEntity;
-import entity.sybase.ProcedureEntity;
-import entity.sybase.ViewEntity;
+import entity.sybase.SybaseProcedureEntity;
+import entity.sybase.SybaseViewEntity;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
@@ -45,9 +45,9 @@ public interface MySQLDao {
 
     void saveBatchSrcToBigData(String tableName, List<SrcToBigDataEntity> srcToBigDataList);
 
-    void saveBatchProcedure(String tableName, List<ProcedureEntity> procedureList);
+    void saveBatchProcedure(String tableName, List<SybaseProcedureEntity> procedureList);
 
-    void saveBatchView(String tableName, List<ViewEntity> viewList);
+    void saveBatchView(String tableName, List<SybaseViewEntity> viewList);
 
     void saveBatchDchis(String tableName, List<Dchis> dchisList);
 

@@ -2,9 +2,7 @@ package entity.src_to_raw;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Author:BYDylan
@@ -12,8 +10,6 @@ import lombok.NoArgsConstructor;
  * Description:存放 SRC_TO_RAW 解析结果
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class SrcToRawEntity {
     @ExcelProperty("解析文件路径")
     private String fileAddr;

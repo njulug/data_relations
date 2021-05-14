@@ -2,9 +2,7 @@ package entity.analysis;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Author:BYDylan
@@ -12,8 +10,6 @@ import lombok.NoArgsConstructor;
  * Description:
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ShellColumnsResult {
     @ExcelProperty("匹配类型")
     private String matchType;

@@ -5,9 +5,8 @@ import config.DataBaseConstant;
 import dao.CustomerContextHolder;
 import dao.MySQLDao;
 import dao.SybaseDao;
-import entity.sybase.ProcedureEntity;
-import entity.raw_to_ods.RawToOdsEntity;
-import entity.sybase.ViewEntity;
+import entity.sybase.SybaseProcedureEntity;
+import entity.sybase.SybaseViewEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,7 +51,7 @@ public class SybaseService {
         log.info("开始按用户获取视图内容存入文件并解析");
         fileTools.truncateDir(targetWriteDir);
         userNameList.forEach(userName -> userNameAndViewDetailMap.put(userName, sybaseDao.getViewDetail(userName)));
-        List<ViewEntity> fileContext = new ArrayList<>();
+        List<SybaseViewEntity> fileContext = new ArrayList<>();
         userNameAndViewDetailMap.forEach((userName, viewList) -> viewList.forEach(view -> {
                     String viewName = view.getOrDefault("table_name", "未获取到视图名");
                     String viewDetail = view.getOrDefault("view_def", "未获取到视图内容");
@@ -60,16 +59,16 @@ public class SybaseService {
                     fileTools.WriteStringToFile(targetWriteDir, fileName, viewDetail);
                     Map<String, String> sourceTargetTableMap = sqlParserTools.setJdbc(DataBaseConstant.SYBASE).getSimpleSourceTargetTables(viewDetail, "");
                     sourceTargetTableMap.forEach((key, value) -> {
-                        ViewEntity viewEntity = new ViewEntity();
-                        viewEntity.setFileAddr("SYBASE\\VIEW\\" + fileName);
-                        viewEntity.setFileName(fileName);
-                        viewEntity.setUserName(userName);
-                        viewEntity.setViewName(viewName);
-                        viewEntity.setTableType(value);
-                        viewEntity.setTableName(key);
-                        viewEntity.setCreateTime(LocalDate.now().toString());
-                        viewEntity.setModifyTime(LocalDate.now().toString());
-                        fileContext.add(viewEntity);
+                        SybaseViewEntity sybaseViewEntity = new SybaseViewEntity();
+                        sybaseViewEntity.setFileAddr("SYBASE\\VIEW\\" + fileName);
+                        sybaseViewEntity.setFileName(fileName);
+                        sybaseViewEntity.setUserName(userName);
+                        sybaseViewEntity.setViewName(viewName);
+                        sybaseViewEntity.setTableType(value);
+                        sybaseViewEntity.setTableName(key);
+                        sybaseViewEntity.setCreateTime(LocalDate.now().toString());
+                        sybaseViewEntity.setModifyTime(LocalDate.now().toString());
+                        fileContext.add(sybaseViewEntity);
                     });
                 }
         ));
@@ -78,7 +77,7 @@ public class SybaseService {
         mySQLDao.truncateTable("sybase_view_detail");
         mySQLDao.saveBatchView("sybase_view_detail", fileContext);
         log.info("明细信息,开始存入excel");
-        EasyExcel.write(projectPath + "\\sybase_view结果.xlsx", RawToOdsEntity.class).sheet("sybase_view").doWrite(fileContext);
+        EasyExcel.write(projectPath + "\\sybase_view结果.xlsx", SybaseViewEntity.class).sheet("sybase_view").doWrite(fileContext);
         List<File> viewFiles = fileTools.matchTargetFiles(projectPath + "\\SYBASE", "view", ".sql");
         log.info("解析完成, view 共解析: {} 个, 明细: {}", viewFiles.size(), fileContext.size());
         viewFiles.clear();
@@ -96,7 +95,7 @@ public class SybaseService {
         log.info("开始按用户获取存储过程内容存入文件并解析");
         fileTools.truncateDir(targetWriteDir);
         userNameList.forEach(userName -> userNameAndprocedureDetailMap.put(userName, sybaseDao.getProcedureDetail(userName)));
-        List<ProcedureEntity> fileContext = new ArrayList<>();
+        List<SybaseProcedureEntity> fileContext = new ArrayList<>();
         Set<String> sourceTableSet = new HashSet<>();
         Set<String> targetTableSet = new HashSet<>();
         userNameAndprocedureDetailMap.forEach((userName, procedure) -> procedure.forEach(map ->
@@ -109,37 +108,37 @@ public class SybaseService {
                     String[] fileNameSplits = fileName.split("_");
                     SqlParserTools.parseSybaseProcedureTables(procedureSql, sourceTableSet, targetTableSet, fileName);
                     for (String sourceTable : sourceTableSet) {
-                        ProcedureEntity procedureEntity = new ProcedureEntity();
-                        procedureEntity.setFileAddr("SYBASE\\PROCEDURE\\" + fileName);
-                        procedureEntity.setFileName(fileName);
-                        procedureEntity.setUserName(userName);
-                        procedureEntity.setProcedureName(procedureName);
-                        procedureEntity.setTableType("sourceTable");
-                        procedureEntity.setTableName(sourceTable);
-                        procedureEntity.setCreateTime(LocalDate.now().toString());
-                        procedureEntity.setModifyTime(LocalDate.now().toString());
-                        fileContext.add(procedureEntity);
+                        SybaseProcedureEntity sybaseProcedureEntity = new SybaseProcedureEntity();
+                        sybaseProcedureEntity.setFileAddr("SYBASE\\PROCEDURE\\" + fileName);
+                        sybaseProcedureEntity.setFileName(fileName);
+                        sybaseProcedureEntity.setUserName(userName);
+                        sybaseProcedureEntity.setProcedureName(procedureName);
+                        sybaseProcedureEntity.setTableType("sourceTable");
+                        sybaseProcedureEntity.setTableName(sourceTable);
+                        sybaseProcedureEntity.setCreateTime(LocalDate.now().toString());
+                        sybaseProcedureEntity.setModifyTime(LocalDate.now().toString());
+                        fileContext.add(sybaseProcedureEntity);
                     }
                     for (String targetTable : targetTableSet) {
-                        ProcedureEntity procedureEntity = new ProcedureEntity();
-                        procedureEntity.setFileAddr("SYBASE\\PROCEDURE\\" + fileName);
-                        procedureEntity.setFileName(fileName);
-                        procedureEntity.setUserName(userName);
-                        procedureEntity.setProcedureName(procedureName);
-                        procedureEntity.setTableType("targetTable");
-                        procedureEntity.setTableName(targetTable);
-                        procedureEntity.setCreateTime(LocalDate.now().toString());
-                        procedureEntity.setModifyTime(LocalDate.now().toString());
-                        fileContext.add(procedureEntity);
+                        SybaseProcedureEntity sybaseProcedureEntity = new SybaseProcedureEntity();
+                        sybaseProcedureEntity.setFileAddr("SYBASE\\PROCEDURE\\" + fileName);
+                        sybaseProcedureEntity.setFileName(fileName);
+                        sybaseProcedureEntity.setUserName(userName);
+                        sybaseProcedureEntity.setProcedureName(procedureName);
+                        sybaseProcedureEntity.setTableType("targetTable");
+                        sybaseProcedureEntity.setTableName(targetTable);
+                        sybaseProcedureEntity.setCreateTime(LocalDate.now().toString());
+                        sybaseProcedureEntity.setModifyTime(LocalDate.now().toString());
+                        fileContext.add(sybaseProcedureEntity);
                     }
 //            没解析出来的也存一条进去,方便定位问题
                     if (sourceTableSet.size() == 0 && targetTableSet.size() == 0) {
-                        ProcedureEntity procedureEntity = new ProcedureEntity();
-                        procedureEntity.setFileAddr("SYBASE\\PROCEDURE\\" + fileName);
-                        procedureEntity.setFileName(fileName);
-                        procedureEntity.setUserName(userName);
-                        procedureEntity.setProcedureName(procedureName);
-                        fileContext.add(procedureEntity);
+                        SybaseProcedureEntity sybaseProcedureEntity = new SybaseProcedureEntity();
+                        sybaseProcedureEntity.setFileAddr("SYBASE\\PROCEDURE\\" + fileName);
+                        sybaseProcedureEntity.setFileName(fileName);
+                        sybaseProcedureEntity.setUserName(userName);
+                        sybaseProcedureEntity.setProcedureName(procedureName);
+                        fileContext.add(sybaseProcedureEntity);
                     }
                     targetTableSet.clear();
                     sourceTableSet.clear();
@@ -150,7 +149,7 @@ public class SybaseService {
         mySQLDao.truncateTable("sybase_procedure_detail");
         mySQLDao.saveBatchProcedure("sybase_procedure_detail", fileContext);
         log.info("明细信息,开始存入excel");
-        EasyExcel.write(projectPath + "\\sybase_procedure结果.xlsx", RawToOdsEntity.class).sheet("sybase_procedure").doWrite(fileContext);
+        EasyExcel.write(projectPath + "\\sybase_procedure结果.xlsx", SybaseProcedureEntity.class).sheet("sybase_procedure").doWrite(fileContext);
         List<File> procedureFiles = fileTools.matchTargetFiles(projectPath + "\\SYBASE", "procedure", ".sql");
         log.info("解析完成, procedure 共解析: {} 个, 明细: {}", procedureFiles.size(), fileContext.size());
         procedureFiles.clear();

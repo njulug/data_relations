@@ -2,9 +2,7 @@ package entity.src_to_bigdata;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Author:BYDylan
@@ -12,8 +10,6 @@ import lombok.NoArgsConstructor;
  * Description: hive 元数据实体类
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class TableEntity {
     @ExcelProperty("文件路径")
     String fileAddr;
