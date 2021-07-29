@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.util.Locale;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +56,7 @@ public class FileParseTools {
      */
     public HiveFileEntity parseHiveFile(File targetFile) {
         HiveFileEntity hiveFileEntity = new HiveFileEntity();
+        Properties properties = new Properties();
         String hive_database = "";
         String hive_table = "";
         String all_columns = "";
@@ -62,22 +65,13 @@ public class FileParseTools {
         String where_conditions = "";
         try {
             FileReader fr = new FileReader(targetFile);
-            LineNumberReader lnr = new LineNumberReader(fr);
-            while (lnr.ready()) {
-                String line = lnr.readLine();
-                if (line.toLowerCase().contains("hive_database=")) {
-                    hive_database = line.toLowerCase().replace("hive_database=", "");
-                } else if (line.toLowerCase().contains("hive_table=")) {
-                    hive_table = line.toLowerCase().replace("hive_table=", "");
-                } else if (line.toLowerCase().contains("columns_name=")) {
-                    all_columns = line.toLowerCase().replace("columns_name=", "").replaceAll("[' ]", "");
-                    all_columns_count = all_columns.split(",").length;
-                } else if (line.toLowerCase().contains("partition_key=")) {
-                    partition_key = line.toLowerCase().replace("partition_key=", "");
-                } else if (line.toLowerCase().contains("where_conditions=")) {
-                    where_conditions = line.toLowerCase().replace("where_conditions=", "").replace("\"", "");
-                }
-            }
+            properties.load(fr);
+            hive_database = properties.getProperty("HIVE_DATABASE","").toLowerCase(Locale.ROOT).trim();
+            hive_table = properties.getProperty("HIVE_TABLE","").toLowerCase(Locale.ROOT).trim();
+            all_columns = properties.getProperty("COLUMNS_NAME","").toLowerCase(Locale.ROOT).trim();
+            all_columns_count = all_columns.split(",").length;
+            partition_key = properties.getProperty("PARTITION_KEY","").toLowerCase(Locale.ROOT).trim();
+            where_conditions = properties.getProperty("WHERE_CONDITIONS","").toLowerCase(Locale.ROOT).trim();
         } catch (Exception e) {
             log.error("读取文件出错: {}, 报错信息: {}", targetFile, e.getMessage());
         } finally {

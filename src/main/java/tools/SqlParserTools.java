@@ -77,30 +77,83 @@ public class SqlParserTools {
 
     @Test
     public void test() {
-        File dchisFile = new File(projectPath + "\\ORACLE\\dchis.sql");
-        FileParseTools fileParseTools = new FileParseTools(new SqlParserTools());
+//        File dchisFile = new File(projectPath + "\\ORACLE\\dchis.sql");
+//        FileParseTools fileParseTools = new FileParseTools(new SqlParserTools());
 //        String sql = fileParseTools.clearOracleSpecialCharacters(dchisFile);
-        String sql = "Select INIT_DATE ||B.CLIENT_ID || '1' As ID,\n" +
-                "       FUND_ACCOUNT As CAPITALACCOUNT,\n" +
-                "       B.CLIENT_ID As CLIENTID,\n" +
-                "       1 As RANKTYPE,\n" +
-                "       TOTAL_RANK_D As RANK,\n" +
-                "       TOTAL_SCORE_D As COMPOSITERANK,\n" +
-                "       YIELD_D As EARINGS,\n" +
-                "       YIELDRATE_D As EARINGSRATE,\n" +
-                "       INIT_DATE As RANKDATE\n" +
-                "  From DCRUN.T_SMC_CLIENT A, DCRUN.T_SMC_RANKING_REAL B\n" +
-                " Where INIT_DATE = CDATE\n" +
-                "       And A.CLIENT_ID = B.CLIENT_ID";
+        String sql = "insert overwrite table ${hivevar:hive_cleandb}.t_mid_clean_his_databankmshare_hv partition(part_init_date)\n" +
+                "select arrays[0] as init_date,\n" +
+                "arrays[1] as end_date,\n" +
+                "arrays[2] as fund_account,\n" +
+                "arrays[3] as client_id,\n" +
+                "arrays[4] as prodta_no,\n" +
+                "arrays[5] as bankm_account,\n" +
+                "cast(arrays[6] as decimal(10,0)) as branch_no,\n" +
+                "arrays[7] as prod_code,\n" +
+                "arrays[8] as money_type,\n" +
+                "arrays[9] as buy_date,\n" +
+                "cast(arrays[10] as decimal(10,0)) as serial_no,\n" +
+                "arrays[11] as net_no,\n" +
+                "arrays[12] as allot_no,\n" +
+                "cast(arrays[13] as decimal(19,2)) as begin_amount,\n" +
+                "cast(arrays[14] as decimal(19,2)) as current_amount,\n" +
+                "cast(arrays[15] as decimal(19,2)) as frozen_amount,\n" +
+                "arrays[16] as dividend_way,\n" +
+                "arrays[17] as charge_type,\n" +
+                "cast(arrays[18] as decimal(19,2)) as bankm_market_value,\n" +
+                "arrays[19] as position_str,\n" +
+                "arrays[20] as trans_account,\n" +
+                "arrays[21] as part_init_date\n" +
+                " from (\n" +
+                "\n" +
+                "select split(value,\"!#\") arrays from (\n" +
+                "\n" +
+                "select explode(value) as value from (\n" +
+                "\n" +
+                "select a.key,split(hiveudf.FillDataByClosedayUDF(concat_ws(\"!@#\",collect_set(value)),hiveudf.udf_last_close_day(${hivevar:endDate}),${hivevar:endDate},0,21,\"databankmshare\",13,14),\"!@#\") value\n" +
+                "from (\n" +
+                "   \n" +
+                "    select concat_ws(\",\",fund_account,bankm_account,prodta_no,prod_code) as key,concat_ws(\"!#\",nvl(init_date,\"\"),nvl(end_date,\"\"),nvl(fund_account,\"\"),nvl(client_id,\"\"),nvl(prodta_no,\"\"),nvl(bankm_account,\"\"),nvl(cast(branch_no as string),\"\"),nvl(prod_code,\"\"),nvl(money_type,\"\"),nvl(\n" +
+                "buy_date,\"\"),nvl(cast(serial_no as string),\"\"),nvl(net_no,\"\"),nvl(allot_no,\"\"),nvl(cast(begin_amount as string),\"\"),nvl(cast(current_amount as string),\"\"),nvl(\n" +
+                "cast(frozen_amount as string),\"\"),nvl(dividend_way,\"\"),nvl(charge_type,\"\"),nvl(cast(bankm_market_value as string),\"\"),nvl(position_str,\"\"),nvl(trans_account,\"\"),nvl(part_init_date,\"\")) as value from \n" +
+                "    (\n" +
+                "   \n" +
+                "    select a.init_date,a.end_date,a.fund_account,a.client_id,a.prodta_no,a.bankm_account,a.branch_no,a.prod_code,a.money_type,a.\n" +
+                "buy_date,a.serial_no,a.net_no,a.allot_no,0 as begin_amount,a.current_amount,a.frozen_amount,a.dividend_way,a.\n" +
+                "charge_type,a.bankm_market_value,a.position_str,a.trans_account,a.part_init_date\n" +
+                "    from ${hivevar:hive_hs08db}.t_ods_hs08_his_databankmshare_hv a where begin_amount = current_amount and begin_amount <> 0 and part_init_date=${hivevar:endDate}\n" +
+                "    union all\n" +
+                "    select \n" +
+                "    a.init_date,a.end_date,a.fund_account,a.client_id,a.prodta_no,a.bankm_account,a.branch_no,a.prod_code,a.money_type,a.\n" +
+                "buy_date,a.serial_no,a.net_no,a.allot_no,a.begin_amount,a.current_amount,a.frozen_amount,a.dividend_way,a.\n" +
+                "charge_type,a.bankm_market_value,a.position_str,a.trans_account,a.part_init_date\n" +
+                "    from ${hivevar:hive_hs08db}.t_ods_hs08_his_databankmshare_hv a where !(begin_amount = current_amount and begin_amount <> 0) and part_init_date=${hivevar:endDate}\n" +
+                "    union all\n" +
+                "\n" +
+                "    select \n" +
+                "    a.init_date,a.end_date,a.fund_account,a.client_id,a.prodta_no,a.bankm_account,a.branch_no,a.prod_code,a.money_type,a.\n" +
+                "buy_date,a.serial_no,a.net_no,a.allot_no,a.begin_amount,a.current_amount,a.frozen_amount,a.dividend_way,a.\n" +
+                "charge_type,a.bankm_market_value,a.position_str,a.trans_account,a.part_init_date\n" +
+                "    from ${hivevar:hive_cleandb}.t_mid_clean_his_databankmshare_hv a where part_init_date=hiveudf.udf_last_close_day(${hivevar:endDate})\n" +
+                "\n" +
+                "    ) x \n" +
+                "\n" +
+                ") a group by key\n" +
+                "\n" +
+                ") b\n" +
+                "\n" +
+                ") c\n" +
+                "\n" +
+                ") d where arrays[0] != -1 and arrays[0] >=${hivevar:endDate} and arrays[0] <= ${hivevar:endDate};";
 //        List<Map<String, String>> oracleProcedureSourceTargetTables = setJdbc(DataBaseConstant.ORACLE).getCreateSourceTargetTables(sql, "");
 //        System.out.println("oracleProcedureSourceTargetTables = " + oracleProcedureSourceTargetTables);
-        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.ORACLE).getSimpleSourceTargetTables(sql, dchisFile.getAbsolutePath());
+        Map<String, String> sourceTargetTables = setJdbc(DataBaseConstant.ORACLE).getSimpleSourceTargetTables(sql, "");
         System.out.println("sourceTargetTables = " + sourceTargetTables);
     }
 
     /**
      * 获取创建语句的源表,目标表,包含创建的名字,例如 存过名,视图名
-     * @param sql sql
+     *
+     * @param sql          sql
      * @param absolutePath sql 路径
      * @return 返回结果
      */
@@ -160,14 +213,15 @@ public class SqlParserTools {
                 stmt.accept(visitor);
             }
         } catch (Exception e) {
-            log.debug("sql 解析失败: {} ,解析类型: {} , 路径: {} ,sql: \n{}", e.getMessage(), dbType, absolutePath,sql);
             try {
                 stmtList = SQLUtils.parseStatements(sql, JdbcConstants.HIVE);
                 for (SQLStatement stmt : stmtList) {
                     stmt.accept(visitor);
                 }
             } catch (Exception exception) {
-                log.error("sql 解析失败: {} ,解析类型: {} , 路径: {} ,sql: \n{}", e.getMessage(), JdbcConstants.HIVE, absolutePath,sql);
+//                log.error("sql 解析失败: {} ,解析类型: {} , 路径: {} ,sql: \n{}", e.getMessage(), JdbcConstants.HIVE, absolutePath,sql);
+//                log.error("sql 解析失败: {} ,解析类型: {} , 路径: {}", e.getMessage(), JdbcConstants.HIVE, absolutePath);
+                log.error("sql 解析失败,路径: {}", absolutePath);
             }
         }
 

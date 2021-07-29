@@ -56,9 +56,10 @@ public class AzkabanService {
                 AzkabanEntity azkabanResultEntity = new AzkabanEntity();
                 azkabanResultEntity.setFileName(targetFile.getName());
                 String command = azkabanEntity.getCommand();
-                String jobName = azkabanEntity.getJobName();
+                azkabanResultEntity.setGroupName(azkabanEntity.getGroupName());
+                azkabanResultEntity.setFlowName(azkabanEntity.getFlowName());
                 azkabanResultEntity.setCommand(command);
-                azkabanResultEntity.setJobName(jobName);
+                azkabanResultEntity.setJobName(azkabanEntity.getJobName());
                 azkabanResultEntity.setCreateTime(LocalDate.now().toString());
                 azkabanResultEntity.setModifyTime(LocalDate.now().toString());
                 List<String> commandSplitList = Arrays.asList(command.split("[\\ ]+"));
@@ -82,9 +83,9 @@ public class AzkabanService {
                     azkabanResultEntity.setParseType("ods_shell");
                     addrSplitArray = commandSplitList.get(1).split("/");
                     for (String par : commandSplitList) {
-                        if (par.contains("-g${")) {
+                        if (par.contains("-g")) {
                             azkabanResultEntity.setOdsShellGName(par.replace("-g", "").replaceAll("[$|{}]", ""));
-                        } else if (par.contains("-k${")) {
+                        } else if (par.contains("-k")) {
                             azkabanResultEntity.setOdsShellKName(par.replace("-k", "").replaceAll("[$|{}]", ""));
                         }
                     }
@@ -92,11 +93,11 @@ public class AzkabanService {
                     azkabanResultEntity.setParseType("hive_file");
                     addrSplitArray = commandSplitList.get(1).split("/");
                     for (String par : commandSplitList) {
-                        if (par.contains("-s${")) {
+                        if (par.contains("-s")) {
                             azkabanResultEntity.setStgShellSName(par.replace("-s", "").replaceAll("[$|{}]", ""));
-                        } else if (par.contains("-e${")) {
+                        } else if (par.contains("-e")) {
                             azkabanResultEntity.setStgShellEName(par.replace("-e", "").replaceAll("[$|{}]", ""));
-                        } else if (par.contains("-c${")) {
+                        } else if (par.contains("-c")) {
                             azkabanResultEntity.setHiveFileCName(par.replace("-c", "").replaceAll("[$|{}]", ""));
                         }
                     }

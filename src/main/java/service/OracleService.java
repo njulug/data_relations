@@ -3,7 +3,6 @@ package service;
 import com.alibaba.excel.EasyExcel;
 import config.DataBaseConstant;
 import dao.MySQLDao;
-import dao.SybaseDao;
 import entity.oracle.Dchis;
 import entity.oracle.Dcraw;
 import entity.oracle.Dcrun;
@@ -33,15 +32,13 @@ public class OracleService {
     private final String projectPath = System.getProperty("user.dir");
     private final FileTools fileTools;
     private final MySQLDao mySQLDao;
-    private final SybaseDao sybaseDao;
     private final FileParseTools fileParseTools;
     private final SqlParserTools sqlParserTools;
 
     @Autowired
-    public OracleService(SybaseDao sybaseDao, MySQLDao mySQLDao, FileTools fileTools, FileParseTools fileParseTools,SqlParserTools sqlParserTools) {
+    public OracleService(MySQLDao mySQLDao, FileTools fileTools, FileParseTools fileParseTools, SqlParserTools sqlParserTools) {
         this.fileTools = fileTools;
         this.mySQLDao = mySQLDao;
-        this.sybaseDao = sybaseDao;
         this.fileParseTools = fileParseTools;
         this.sqlParserTools = sqlParserTools;
     }

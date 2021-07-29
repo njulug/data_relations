@@ -76,9 +76,9 @@ select
 	file_name as '文件名',
 	source_table_name as '源表名',
 	stg_table_name as 'stg表名',
-	azkaban_file_name as '调度文件名',
+	ifnull(azkaban_file_name,'') as '调度文件名',
 	is_match_azkaban as '是否有调度',
-	azkaban_job_name as 'job名'
+	ifnull(azkaban_job_name,'') as 'job名'
 from analysis_azkaban_stg_shell 
 where source_table_name in (
 	select source_table_name from stg_shell_detail group by source_table_name having count(1) > 1
@@ -94,9 +94,9 @@ select
 	file_name as '文件名',
 	stg_table_name as 'stg表名',
 	ods_table_name as 'ods表名',
-	azkaban_file_name as '调度文件名',
+	ifnull(azkaban_file_name,'') as '调度文件名',
 	is_match_azkaban as '是否有调度',
-	azkaban_job_name as 'job名'
+	ifnull(azkaban_job_name,'') as 'job名'
 from analysis_azkaban_ods_shell 
 where ods_table_name in (
 	select ods_table_name from ods_shell_detail group by ods_table_name having count(1) > 1
@@ -111,9 +111,9 @@ select
 	file_addr as '文件路径',
 	file_name as '文件名',
 	ods_table_name as 'ods表名',
-	azkaban_file_name as '调度文件名',
+	ifnull(azkaban_file_name,'') as '调度文件名',
 	is_match_azkaban as '是否有调度',
-	azkaban_job_name as 'job名'
+	ifnull(azkaban_job_name,'') as 'job名'
 from analysis_azkaban_hive_file 
 where ods_table_name in (
 	select ods_table_name from hive_file_detail group by ods_table_name having count(1) > 1

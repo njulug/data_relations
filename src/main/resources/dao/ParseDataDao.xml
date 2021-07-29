@@ -6,10 +6,11 @@
 
     <insert id="saveBatchAzkaban">
         INSERT INTO ${param1}
-        (file_name,parse_type,sub_file_name,job_name,s_name,e_name,o_name,g_name,k_name,c_name,command,create_time,modify_time)
+        (file_name,parse_type,sub_file_name,flow_name,group_name,job_name,s_name,e_name,o_name,g_name,k_name,c_name,command,create_time,modify_time)
         VALUES
         <foreach collection="param2" item="azkabanList" separator=",">
-            (#{azkabanList.fileName},#{azkabanList.parseType},#{azkabanList.subFileName},#{azkabanList.jobName},
+            (#{azkabanList.fileName},#{azkabanList.parseType},#{azkabanList.subFileName},
+            #{azkabanList.flowName},#{azkabanList.groupName},#{azkabanList.jobName},
             #{azkabanList.stgShellSName},#{azkabanList.stgShellEName},#{azkabanList.stgShellOName},
             #{azkabanList.odsShellGName},#{azkabanList.odsShellKName},#{azkabanList.hiveFileCName},
             #{azkabanList.command},

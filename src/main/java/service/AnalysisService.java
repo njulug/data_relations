@@ -3,20 +3,22 @@ package service;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import config.DataBaseConstant;
 import dao.AnalysisDao;
 import dao.MySQLDao;
+import entity.analysis.SqlFileTableEntity;
 import entity.excel.FreezeAndFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tools.FileTools;
+import tools.SqlParserTools;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -28,13 +30,45 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class AnalysisService {
     private final String projectPath = System.getProperty("user.dir");
+    private final SqlParserTools sqlParserTools;
     private final AnalysisDao analysisDao;
+    private final FileTools fileTools;
     private final MySQLDao mySQLDao;
 
     @Autowired
-    public AnalysisService(AnalysisDao analysisDao, MySQLDao mySQLDao) {
+    public AnalysisService(SqlParserTools sqlParserTools, AnalysisDao analysisDao, FileTools fileTools, MySQLDao mySQLDao) {
+        this.sqlParserTools = sqlParserTools;
         this.analysisDao = analysisDao;
+        this.fileTools = fileTools;
         this.mySQLDao = mySQLDao;
+    }
+
+    /**
+     * 解析目录下所有sql文件的源表
+     */
+    public void parseSQLFileSourceTable(String targetWriteDir, DataBaseConstant dataBaseConstant) {
+        log.info("开始解析");
+        List<SqlFileTableEntity> fileContext = new ArrayList<>();
+        for (File sqlFile : new File(targetWriteDir).listFiles()) {
+            String sql = fileTools.readToBuffer(sqlFile);
+            Map<String, String> sourceTargetTables = sqlParserTools.setJdbc(dataBaseConstant).getSimpleSourceTargetTables(sql, sqlFile.getAbsolutePath());
+            log.debug("{} 解析结果: {}", sqlFile.getName(), sourceTargetTables);
+            for (String key : sourceTargetTables.keySet()) {
+                SqlFileTableEntity sqlFileTableEntity = new SqlFileTableEntity();
+                sqlFileTableEntity.setFileName(sqlFile.getName());
+                sqlFileTableEntity.setTableType(sourceTargetTables.get(key));
+                sqlFileTableEntity.setTableName(key);
+                sqlFileTableEntity.setCreateTime(LocalDateTime.now().toString());
+                sqlFileTableEntity.setModifyTime(LocalDateTime.now().toString());
+                fileContext.add(sqlFileTableEntity);
+            }
+        }
+//        log.info("明细信息,开始存入数据库");
+//        mySQLDao.truncateTable("oracle_dchis_detail");
+//        mySQLDao.saveBatchDchis("oracle_dchis_detail", fileContext);
+        log.info("明细信息,开始存入excel");
+//        EasyExcel.write(projectPath + "\\sql解析结果-" + LocalDate.now().toString().replace("-", "") + ".xlsx", SqlFileTableEntity.class).sheet("sql解析结果").doWrite(fileContext);
+        log.info("解析完成, 共解析: {} 个", fileContext.size());
     }
 
     public void execProcedure(List<String> procedureNameList) {

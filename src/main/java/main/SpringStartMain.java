@@ -52,6 +52,9 @@ public class SpringStartMain {
 //            System.exit(-1);
 //        }
 
+//        临时需求,解析目录下所有sql文件中的源表,目标表,写出结果到excel (报错的不会写出到结果,注意看日志)
+//        parseController.parseSQLFileSourceTable("C:\\Workspace\\ideaProject\\data_relations\\sql", DataBaseConstant.HIVE);
+
 //        parseController.parseOracleDchis();
 //        parseController.parseOracleDcraw();
 //        parseController.parseOracleDcrun();
@@ -60,7 +63,9 @@ public class SpringStartMain {
 //        parseController.parseSybaseView();
 //        parseController.parseSrcToRaw();
 //        parseController.parseRawToOds();
-//        parseController.parseSrcToBigData();
+
+//        parseController.azkabanParse();
+        parseController.parseSrcToBigData();
         parseController.analysisService();
         parseController.exportResult();
 

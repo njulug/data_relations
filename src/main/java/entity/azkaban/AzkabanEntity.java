@@ -13,16 +13,16 @@ import lombok.Data;
 //@NoArgsConstructor
 //@AllArgsConstructor
 public class AzkabanEntity {
-    //    @ExcelIgnore
-//    private String flowName;
-//    @ExcelIgnore
-//    private String groupName;
     @ExcelProperty("文件名")
     private String fileName;
     @ExcelProperty("解析类型")
     private String parseType;
     @ExcelProperty("子文件名")
     private String subFileName;
+    @ExcelProperty("flow名称")
+    private String flowName;
+    @ExcelProperty("group名称")
+    private String groupName;
     @ExcelProperty("job名称")
     private String jobName;
     @ExcelProperty("stg_shell-s参数")

@@ -1,5 +1,6 @@
 package controller;
 
+import config.DataBaseConstant;
 import entity.azkaban.AzkabanEntity;
 import entity.src_to_bigdata.HiveFileEntity;
 import entity.src_to_bigdata.ShellEntity;
@@ -90,17 +91,28 @@ public class ParseController {
         log.info("开始分析");
         List<String> procedureNameList = new ArrayList<>();
 //        更新元数据,不用每次都跑
-        procedureNameList.add("p_compare_src_to_raw");
+//        从源数据表里取出源,大数据平台元数据表,不然太大了
         procedureNameList.add("p_update_meta_data");
+//        基于azkaban调度文件,判断目录下所有文件是否有调度,这个必须先跑了再跑后面,因为会以这个为主表
         procedureNameList.add("p_compare_azkaban_ods_stg_hive_file");
+//        比对ods_sql与stg_sql
         procedureNameList.add("p_compare_ods_sql_vs_stg_sql");
+//        比对ods_sql与hive_file
         procedureNameList.add("p_compare_ods_sql_vs_hive_file");
+//        比对ods_sql与生产hive元数据
         procedureNameList.add("p_compare_ods_sql_vs_hive_meta_pro");
+//        比对ods_sql与生产源数据
         procedureNameList.add("p_compare_ods_sql_vs_source_meta_pro");
+//        比对ods_sql与stg_shell
         procedureNameList.add("p_compare_stg_sql_shell");
+//        比对测试hive元数据与生产hive元数据
         procedureNameList.add("p_compare_hive_meta_test_vs_hive_meta_pro");
+//        比对生产源数据与测试源数据
         procedureNameList.add("p_compare_source_meta_test_vs_source_meta_pro");
+//        比对生产源数据与生产hive元数据
         procedureNameList.add("p_compare_source_meta_pro_vs_hive_meta_pro");
+//        整合 src_to_raw 文件对应 src_to_bigdata 文件
+        procedureNameList.add("p_compare_src_to_raw");
 //        元数据太大,分析完清掉几张大表
 //        procedureNameList.add("p_truncate_meta_data");
         analysisService.execProcedure(procedureNameList);
@@ -192,6 +204,12 @@ public class ParseController {
     }
 
     @ResponseBody
+    @PostMapping("/parseSourceTable")
+    public void parseSQLFileSourceTable(String targetWriteDir, DataBaseConstant dataBaseConstant) {
+        analysisService.parseSQLFileSourceTable(targetWriteDir, dataBaseConstant);
+    }
+
+    @ResponseBody
     @PostMapping("/parseOracleDcraw")
     public void parseOracleDcraw() {
         oracleService.parseDcraw();
@@ -202,6 +220,7 @@ public class ParseController {
     public void parseOracleDcrun() {
         oracleService.parseDcrun();
     }
+
     @ResponseBody
     @PostMapping("/parseOracleDcser")
     public void parseOracleDcser() {
